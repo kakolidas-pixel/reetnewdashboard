@@ -4,6 +4,30 @@ import { store, uploadImage } from "./core.js";
 
 const IMG = /^image\/(jpeg|png|webp|gif)$/;
 
+/* ---------- ask for an image link ---------- */
+export function askLink() {
+  return new Promise(resolve => {
+    let done = false;
+    const finish = v => { if (done) return; done = true; close(); resolve(v); };
+    const input = h("input", { type: "url", placeholder: "https://example.org/picture.jpg", autocomplete: "off" });
+    const note = h("p", { class: "note bad", role: "alert" });
+    const body = h("form", { onsubmit: e => {
+      e.preventDefault();
+      const v = input.value.trim();
+      if (!/^https:\/\/\S+$/i.test(v)) { note.textContent = "The link must start with https:// and have no spaces."; return; }
+      finish(v);
+    } },
+      h("label", { class: "field" }, h("span", { class: "lab" }, "Link to the image"), input,
+        h("span", { class: "hint" }, "Right-click an image on the web and copy its address, or use a link to a file in your GitHub repository.")),
+      note,
+      h("div", { class: "actions" },
+        h("button", { class: "btn ghost", type: "button", onclick: () => finish(null) }, "Cancel"),
+        h("button", { class: "btn", type: "submit" }, "Use this image")));
+    const close = modal("Image from a link", body, { onClose: () => { if (!done) { done = true; resolve(null); } } });
+    input.focus();
+  });
+}
+
 /* ---------- image library picker ---------- */
 export function pickMedia() {
   return new Promise(resolve => {
@@ -44,6 +68,7 @@ export function imageField({ value = "", onChange }) {
     root.replaceChildren(
       value ? h("img", { src: value, alt: "" }) : h("p", { class: "muted" }, "No image yet."),
       h("div", { class: "actions left" },
+        h("button", { class: "btn ghost sm", type: "button", onclick: async () => { const u = await askLink(); if (u) set(u); } }, "Use a link"),
         h("button", { class: "btn ghost sm", type: "button", onclick: () => file.click() }, "Upload"),
         h("button", { class: "btn ghost sm", type: "button", onclick: async () => { const u = await pickMedia(); if (u) set(u); } }, "Library"),
         value && h("button", { class: "btn ghost sm", type: "button", onclick: () => set("") }, "Remove")),
@@ -129,7 +154,8 @@ export function mdEditor({ value = "", onInput = () => {}, tall = true } = {}) {
     ["Bold", "Bold (Ctrl+B)", () => wrap("**"), "b"], ["Italic", "Italic (Ctrl+I)", () => wrap("*"), "i"],
     ["Heading", "Heading", () => prefix("## ")], ["Quote", "Quote", () => prefix("> ")], ["List", "Bulleted list", () => prefix("- ")],
     ["Link", "Link (Ctrl+K)", link], ["Footnote", "Add a footnote", footnote],
-    ["Image", "Upload and insert an image (or drop one in)", () => picker.click()],
+    ["Image link", "Insert an image from a web address", async () => { const u = await askLink(); if (u) insertImage(u); }],
+    ["Upload", "Upload and insert an image (or drop one in)", () => picker.click()],
     ["Library", "Insert from the image library", async () => { const u = await pickMedia(); if (u) insertImage(u); }]
   ];
   const mode = btn => { root.className = "mde " + btn; modes.forEach(m => m.setAttribute("aria-pressed", String(m.dataset.m === btn))); };
