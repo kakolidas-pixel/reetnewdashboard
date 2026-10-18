@@ -217,7 +217,8 @@ function decorate(root) {
   });
 }
 
-async function renderPage() {
+async function renderPage(keepScroll = false) {
+  const y = window.scrollY;
   closeAll();
   const raw = location.hash.startsWith("#/") ? location.hash.slice(1) : "/";
   const [pathPart, qs = ""] = raw.split("?");
@@ -240,7 +241,7 @@ async function renderPage() {
     a.toggleAttribute("aria-current", path === p || path.startsWith(p + "/"));
     if (a.hasAttribute("aria-current")) a.setAttribute("aria-current", "page");
   });
-  window.scrollTo(0, 0);
+  window.scrollTo(0, keepScroll === true ? y : 0);
 }
 
 // Footnote links scroll within the page and never change the page address.
@@ -250,12 +251,27 @@ document.addEventListener("click", e => {
   e.preventDefault();
   document.getElementById(a.dataset.fn)?.scrollIntoView({ block: "center" });
 });
-window.addEventListener("hashchange", renderPage);
+window.addEventListener("hashchange", () => renderPage());
 
-(async function start() {
-  try { S = await data.settings(); } catch (err) { console.error(err); S = { siteTitle: "Aryamann Reet", footerNote: "" }; }
+function chrome() {
   $("#wordmark").textContent = S.siteTitle;
   $("#foot").innerHTML = `<p>${esc(S.footerNote)}</p><p>&copy; ${new Date().getFullYear()} ${esc(S.siteTitle)}${data.demoMode ? ". Demo content." : ""}</p>`;
+}
+
+(async function start() {
   initPopups(resolvePreview);
+  view.innerHTML = `<p class="empty" style="margin-top:3rem">Loading…</p>`;
+  try { S = await data.settings(); } catch (err) { console.error(err); S = { siteTitle: "Aryamann Reet", footerNote: "" }; }
+  chrome();
   renderPage();
+  // When fresh data from Firebase differs from the saved copy shown first, quietly update the page.
+  let t;
+  window.addEventListener("data:updated", () => {
+    clearTimeout(t);
+    t = setTimeout(async () => {
+      if (location.hash.startsWith("#/contact")) return; // don't wipe a half-written message
+      try { S = await data.settings(); } catch { /* keep current */ }
+      chrome(); renderPage(true);
+    }, 150);
+  });
 })();
