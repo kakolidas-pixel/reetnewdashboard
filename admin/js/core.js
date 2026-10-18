@@ -8,7 +8,7 @@ const [{ initializeApp }, A, F, S] = await Promise.all([
 
 const app = initializeApp(firebaseConfig);
 export const auth = A.getAuth(app);
-const db = F.getFirestore(app);
+const db = F.initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 const storage = S.getStorage(app);
 
 export const authApi = {
