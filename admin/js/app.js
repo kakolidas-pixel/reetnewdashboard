@@ -90,14 +90,38 @@ async function boot() {
   window.addEventListener("desk:messages", refreshBadge);
   document.addEventListener("keydown", e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s" && shell && !document.querySelector(".mde")) e.preventDefault(); });
 
-  authApi.onChange(async user => {
-    if (!user) return login();
+  // If the database refuses this account, stay signed in and show exactly what Firebase said.
+  function gate(user, err, tries = 0) {
+    shell = false;
+    const denied = err.code === "permission-denied";
+    const status = h("p", { class: "note", role: "status" }, tries ? `Checked again at ${new Date().toLocaleTimeString()}. Still ${denied ? "no access" : "no answer"}.` : "");
+    const li = t => h("li", { style: "margin:.35rem 0" }, t);
+    root.replaceChildren(h("div", { class: "login", style: "max-width:34rem" },
+      h("h1", { class: "brand big" }, "Desk"),
+      panel(denied ? "Signed in, but no access yet" : "Signed in, but the database didn't answer",
+        h("p", {}, "Signed in as ", h("strong", {}, user.email || "(no email)"), "."),
+        h("p", { class: "muted", style: "margin-bottom:.3rem" }, "This account's User UID:"),
+        h("code", { style: "display:block;word-break:break-all;background:var(--bg);border:1px solid var(--rule);padding:.5rem .7rem;font-family:var(--type);font-size:.95rem;user-select:all" }, user.uid),
+        h("div", { class: "actions left" }, h("button", { class: "btn ghost sm", type: "button", onclick: async () => { try { await navigator.clipboard.writeText(user.uid); status.textContent = "UID copied."; } catch { status.textContent = "Select the UID above and copy it by hand."; } } }, "Copy UID")),
+        denied
+          ? h("ol", { style: "padding-left:1.3rem;margin:1rem 0 0" },
+              li("In Firebase, open Firestore Database, then the Rules tab."),
+              li("The text inside the quote marks in isOwner() must be exactly the UID above, with no spaces."),
+              li("Click Publish and wait for the confirmation. Then press Check again."))
+          : h("p", {}, "Check that the Firestore database exists and that this device can reach the internet, then press Check again."),
+        h("p", { class: "muted tiny" }, `Firebase said: ${err.code || "error"}. ${err.message || ""}`),
+        status,
+        h("div", { class: "actions left" },
+          h("button", { class: "btn", type: "button", onclick: () => enter(user, tries + 1) }, "Check again"),
+          h("button", { class: "linkish", type: "button", onclick: () => authApi.signOut() }, "Sign out")))));
+  }
+
+  async function enter(user, tries = 0) {
     try { await store.probe(); }
-    catch (e) {
-      if (e.code === "permission-denied") { await authApi.signOut(); return login("This account doesn't have access to this dashboard."); }
-      console.error(e);
-    }
+    catch (e) { console.error(e); return gate(user, e, tries); }
     if (!shell) buildShell();
     route();
-  });
+  }
+
+  authApi.onChange(user => { if (!user) return login(); enter(user); });
 }
