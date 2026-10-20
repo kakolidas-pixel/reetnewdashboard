@@ -1,6 +1,7 @@
 import { h, panel, toast, confirmBox, iso, fmtDate, slugify } from "./ui.js";
 import { store } from "./core.js";
 import { mdEditor, imageField } from "./editor.js";
+import { sourcesPanel, updatesPanel } from "./extras.js";
 // The dashboard lives in /admin/ inside the site, so the public site is one level up.
 const siteRoot = new URL("../", location.href).href;
 
@@ -24,9 +25,10 @@ function heatmap(counts) {
 }
 
 export async function overview(stage) {
-  const [posts, projects, messages, cfg] = await Promise.all([store.list("posts"), store.list("projects"), store.list("messages"), store.get("settings", "site")]);
+  const [allPosts, projects, messages, cfg] = await Promise.all([store.list("posts"), store.list("projects"), store.list("messages"), store.get("settings", "site")]);
+  const posts = allPosts.filter(p => p.type !== "update");
   const counts = {};
-  posts.forEach(p => new Set([p.date, (p.updatedAt || "").slice(0, 10)].filter(Boolean)).forEach(d => counts[d] = (counts[d] || 0) + 1));
+  allPosts.forEach(p => new Set([p.date, (p.updatedAt || "").slice(0, 10)].filter(Boolean)).forEach(d => counts[d] = (counts[d] || 0) + 1));
   const { grid, weeks } = heatmap(counts);
   const hr = new Date().getHours(), greet = hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
   const first = (cfg?.siteTitle || "").split(" ")[0];
@@ -55,7 +57,8 @@ export async function overview(stage) {
 
 /* ---------- writing / projects lists ---------- */
 export async function writing(stage) {
-  const [posts, projects] = await Promise.all([store.list("posts"), store.list("projects")]);
+  const [allPosts, projects] = await Promise.all([store.list("posts"), store.list("projects")]);
+  const posts = allPosts.filter(p => p.type !== "update");
   posts.sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.updatedAt || "").localeCompare(a.updatedAt || ""));
   let filter = "all", q = "";
   const list = h("div", { class: "rows" });
@@ -92,7 +95,7 @@ export async function projects(stage) {
 /* ---------- document editor (posts and projects) ---------- */
 const CFG = {
   posts: { col: "posts", noun: "post", route: "writing", site: "writing", blank: () => ({ title: "", slug: "", body: "", excerpt: "", date: iso(new Date()), projectId: "", tags: [], cover: "", published: false }) },
-  projects: { col: "projects", noun: "project", route: "projects", site: "projects", blank: () => ({ title: "", slug: "", body: "", summary: "", status: "Ongoing", startDate: iso(new Date()), endDate: "", cover: "", tags: [], featured: false, order: 10, published: false }) }
+  projects: { col: "projects", noun: "project", route: "projects", site: "projects", blank: () => ({ title: "", slug: "", body: "", summary: "", status: "Ongoing", startDate: iso(new Date()), endDate: "", cover: "", tags: [], featured: false, order: 10, sources: [], published: false }) }
 };
 
 export const editor = kind => async (stage, id) => {
@@ -157,6 +160,8 @@ export const editor = kind => async (stage, id) => {
   slugEl.addEventListener("input", () => { slugTouched = true; doc.slug = slugEl.value; changed(); });
 
   const md = mdEditor({ value: doc.body, onInput: v => { doc.body = v; changed(); } });
+  const ensureSaved = async () => docId || ((await save()) ? docId : null);
+  const extras = kind === "projects" ? [sourcesPanel(doc, changed), updatesPanel({ getId: () => docId, ensureSaved }).el] : [];
   const tagsEl = h("input", { value: (doc.tags || []).join(", "), placeholder: "law, water, policy" });
   tagsEl.addEventListener("input", () => { doc.tags = tagsEl.value.split(",").map(t => t.trim()).filter(Boolean); changed(); });
 
@@ -203,7 +208,7 @@ export const editor = kind => async (stage, id) => {
 
   stage.replaceChildren(
     h("a", { class: "back-link", href: `#/${cfg.route}` }, kind === "posts" ? "All writing" : "All projects"),
-    h("div", { class: "ed" }, h("div", { class: "main" }, titleEl, md.el), h("aside", { class: "side" }, side)));
+    h("div", { class: "ed" }, h("div", { class: "main" }, titleEl, md.el, extras), h("aside", { class: "side" }, side)));
 
   const onKey = e => {
     if (!stage.isConnected || !document.body.contains(titleEl)) { document.removeEventListener("keydown", onKey); return; }

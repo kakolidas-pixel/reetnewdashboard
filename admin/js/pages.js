@@ -25,8 +25,9 @@ function entryForm(entry, done) {
 export async function timeline(stage) {
   const [custom, posts, projects] = await Promise.all([store.list("timeline"), store.list("posts"), store.list("projects")]);
   const items = [
-    ...custom.map(c => ({ ...c, own: true })),
-    ...posts.filter(p => p.published).map(p => ({ date: p.date, title: p.title, kind: "writing" })),
+    ...custom.filter(c => c.kind !== "award").map(c => ({ ...c, own: true })),
+    ...custom.filter(c => c.kind === "award").map(a => ({ date: a.date, title: a.award || a.title, kind: "award" })),
+    ...posts.filter(p => p.published).map(p => ({ date: p.date, title: p.title || (p.type === "update" ? "Project update" : "Untitled"), kind: p.type === "update" ? "update" : "writing" })),
     ...projects.filter(p => p.published).map(p => ({ date: p.startDate, title: p.title, kind: "project begins" }))
   ].filter(i => i.date).sort((a, b) => b.date.localeCompare(a.date));
   const years = {}; items.forEach(i => (years[i.date.slice(0, 4)] ||= []).push(i));

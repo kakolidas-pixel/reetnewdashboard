@@ -32,6 +32,9 @@ export function render(md) {
   return DOMPurify.sanitize(html);
 }
 
+// Inline-only markdown (italics, links) for citations.
+export function inline(md) { return DOMPurify.sanitize(marked.parseInline(String(md || ""))); }
+
 // Plain-text excerpt for lists and previews.
 export function excerpt(md, n = 160) {
   const t = String(md || "")
