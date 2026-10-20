@@ -100,6 +100,15 @@ img:hover,a:hover img,figure:hover img,.entry:hover img{filter:none}
 .yr-items .kind{font-style:italic;color:var(--ink3);font-size:.9rem;margin-left:.5em}
 .yr-items p{margin:.15rem 0 0;color:var(--ink2);font-size:.98rem;line-height:1.5;max-width:30rem}
 
+/* project updates and sources */
+.upd{display:grid;grid-template-columns:8rem 1fr;gap:1rem;padding:1.1rem 0 .4rem;border-top:1px solid var(--rule)}
+.upd time{color:var(--ink3);font-size:.95rem;padding-top:.3rem}
+.upd h3{font-size:1.35rem;margin:0 0 .3rem}
+.upd .prose{max-width:36rem}
+.sources{padding-left:1.5rem;margin:0;max-width:40rem;color:var(--ink2);font-size:1rem}
+.sources li{margin:.55rem 0}
+.sources a{color:var(--ink)}
+
 /* writing list */
 .filters{display:flex;flex-wrap:wrap;gap:.3rem 1.3rem;margin:0 0 1.6rem}
 .filters a[aria-current]{text-decoration-thickness:3px;text-underline-offset:.28em}
@@ -156,7 +165,7 @@ form.contact input:focus,form.contact textarea:focus{border-color:var(--yel)}
   .cover img{aspect-ratio:16/9}
   .yr{grid-template-columns:1fr}
   .yr-n{position:static;margin-bottom:.6rem}
-  .post{grid-template-columns:1fr;gap:.1rem}
+  .post,.upd{grid-template-columns:1fr;gap:.1rem}
   .about-grid{grid-template-columns:1fr}
   .about-grid .portrait{order:-1;max-width:10rem}
 }

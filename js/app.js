@@ -1,5 +1,5 @@
 import * as data from "./db.js";
-import { render as md, excerpt, readingTime } from "./md.js";
+import { render as md, inline, excerpt, readingTime } from "./md.js";
 import { initPopups, closeAll } from "./popup.js";
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -33,9 +33,13 @@ async function home() {
   const [P, W, T] = await Promise.all([data.projects(), data.posts(), data.timeline()]);
   const feat = P.find(p => p.id === S.featuredProject) || P.find(p => p.featured) || P[0];
 
+  const isUpd = p => p.type === "update", isAward = t => t.kind === "award";
+  const projOf = id => P.find(p => p.id === id);
   const items = [
-    ...T.map(t => ({ date: t.date, title: t.title, desc: t.description, href: t.link || "", kind: "milestone" })),
-    ...W.map(p => ({ date: p.date, title: p.title, desc: p.excerpt || excerpt(p.body, 130), href: `/writing/${p.slug}`, kind: "writing" })),
+    ...T.filter(t => !isAward(t)).map(t => ({ date: t.date, title: t.title, desc: t.description, href: t.link || "", kind: "milestone" })),
+    ...T.filter(t => isAward(t) && t.onTimeline !== false).map(t => ({ date: t.date, title: [t.award || t.title, t.event].filter(Boolean).join(", "), desc: [t.committee, t.portfolio].filter(Boolean).join(", "), href: "/awards", kind: "award" })),
+    ...W.filter(p => !isUpd(p)).map(p => ({ date: p.date, title: p.title, desc: p.excerpt || excerpt(p.body, 130), href: `/writing/${p.slug}`, kind: "writing" })),
+    ...W.filter(isUpd).map(p => ({ date: p.date, title: p.title || `Update on ${projOf(p.projectId)?.title || "a project"}`, desc: excerpt(p.body, 130), href: projOf(p.projectId) ? `/projects/${projOf(p.projectId).slug}` : "", kind: "update" })),
     ...P.map(p => ({ date: p.startDate, title: p.title, desc: p.summary, href: `/projects/${p.slug}`, kind: "project begins" }))
   ].filter(i => i.date).sort((a, b) => b.date.localeCompare(a.date));
 
@@ -89,13 +93,17 @@ async function project([, slug]) {
   const [P, W] = await Promise.all([data.projects(), data.posts()]);
   const p = P.find(x => x.slug === slug);
   if (!p) return notFound();
-  const related = W.filter(w => w.projectId === p.id);
+  const related = W.filter(w => w.projectId === p.id && w.type !== "update");
+  const updates = W.filter(w => w.projectId === p.id && w.type === "update");
+  const sources = (p.sources || []).filter(s => (s.citation || "").trim());
   return {
     title: p.title,
     html: `<h1 class="page-title">${esc(p.title)}</h1><p class="meta">${esc(statusLine(p))}</p>
       ${p.cover ? `<figure class="hero-img"><img src="${esc(p.cover)}" alt=""></figure>` : ""}
       <div class="prose" data-md>${md(p.body)}</div>
-      ${related.length ? `<h2 class="sec related">Writing on this project</h2>${related.map(w => postRow(w, [])).join("")}` : ""}`
+      ${updates.length ? `<h2 class="sec">Updates</h2>${updates.map(u => `<article class="upd"><time datetime="${u.date}">${D(u.date, { day: "numeric", month: "short", year: "numeric" })}</time><div>${u.title ? `<h3>${esc(u.title)}</h3>` : ""}<div class="prose">${md(u.body)}</div></div></article>`).join("")}` : ""}
+      ${related.length ? `<h2 class="sec related">Writing on this project</h2>${related.map(w => postRow(w, [])).join("")}` : ""}
+      ${sources.length ? `<h2 class="sec">Sources</h2><ol class="sources">${sources.map(s => `<li>${inline(s.citation)}${s.url ? ` <a href="${esc(s.url)}">Link</a>` : ""}</li>`).join("")}</ol>` : ""}`
   };
 }
 
@@ -108,7 +116,8 @@ const postRow = (w, P) => {
 };
 
 async function writing(_, q) {
-  const [W, P] = await Promise.all([data.posts(), data.projects()]);
+  const [W0, P] = await Promise.all([data.posts(), data.projects()]);
+  const W = W0.filter(w => w.type !== "update");
   const f = q.get("project") || "all";
   const list = W.filter(w => f === "all" || (f === "none" ? !w.projectId : w.projectId === f));
   const cur = k => f === k ? ' aria-current="true"' : "";
@@ -135,6 +144,25 @@ async function post([, slug]) {
       <p class="meta">${D(w.date)}, ${readingTime(w.body)} min read${proj ? `. Part of <a href="/projects/${esc(proj.slug)}">${esc(proj.title)}</a>` : ""}</p>
       ${w.cover ? `<figure class="hero-img"><img src="${esc(w.cover)}" alt=""></figure>` : ""}
       <div class="prose" data-md>${md(w.body)}</div>`
+  };
+}
+
+async function awards() {
+  const A = (await data.timeline()).filter(t => t.kind === "award").sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+  const years = {};
+  A.forEach(a => (years[(a.date || "").slice(0, 4) || "Undated"] ||= []).push(a));
+  const body = Object.keys(years).sort().reverse().map(y => `
+    <section class="yr"><h3 class="yr-n">${esc(y)}</h3>
+      <ul class="yr-items">${years[y].map(a => `
+        <li><time datetime="${esc(a.date)}">${D(a.date, { day: "numeric", month: "short" })}</time>
+          <div><span class="t">${a.link ? `<a href="${esc(a.link)}">${esc(a.award || a.title)}</a>` : esc(a.award || a.title)}</span>${a.event ? `<span class="kind">${esc(a.event)}</span>` : ""}
+          ${[a.committee, a.portfolio].filter(Boolean).length ? `<p>${esc([a.committee, a.portfolio].filter(Boolean).join(", "))}</p>` : ""}
+          ${a.description ? `<p>${esc(a.description)}</p>` : ""}</div></li>`).join("")}
+      </ul></section>`).join("");
+  return {
+    title: "Awards",
+    html: `<h1 class="page-title">Awards</h1><p class="page-sub">Model UN conferences and other competitions.</p>
+      ${body ? `<div class="timeline">${body}</div>` : `<p class="empty">Nothing here yet.</p>`}`
   };
 }
 
@@ -189,7 +217,7 @@ async function resolvePreview(url) {
     const w = (await data.posts()).find(x => x.slug === m[1]);
     if (w) return { title: "Writing", image: w.cover, heading: w.title, meta: `${D(w.date)}, ${readingTime(w.body)} min read`, text: w.excerpt || excerpt(w.body, 300), href: "#" + path };
   }
-  const plain = { "/": ["Home", S.siteTitle, S.tagline], "/about": ["About", "About", excerpt(S.about, 260)], "/projects": ["Projects", "Projects", "Long-running work, each with its own record."], "/writing": ["Writing", "Writing", "Everything written lately, newest first."], "/contact": ["Contact", "Contact", "Questions, corrections and critiques are welcome."] }[path];
+  const plain = { "/": ["Home", S.siteTitle, S.tagline], "/about": ["About", "About", excerpt(S.about, 260)], "/projects": ["Projects", "Projects", "Long-running work, each with its own record."], "/writing": ["Writing", "Writing", "Everything written lately, newest first."], "/awards": ["Awards", "Awards", "Model UN conferences and other competitions."], "/contact": ["Contact", "Contact", "Questions, corrections and critiques are welcome."] }[path];
   if (plain) return { title: plain[0], heading: plain[1], text: plain[2], href: "#" + path };
   return { title: "Page", heading: path, text: "", href: "#" + path };
 }
@@ -198,7 +226,7 @@ async function resolvePreview(url) {
 
 const routes = [
   [/^\/$/, home], [/^\/about$/, about], [/^\/projects$/, projects], [/^\/projects\/([^/]+)$/, project],
-  [/^\/writing$/, writing], [/^\/writing\/([^/]+)$/, post], [/^\/contact$/, contact]
+  [/^\/awards$/, awards], [/^\/writing$/, writing], [/^\/writing\/([^/]+)$/, post], [/^\/contact$/, contact]
 ];
 
 function decorate(root) {

@@ -18,17 +18,24 @@ export const demo = {
   projects: [
     { id: "p1", slug: "brahmaputra-project", title: "The Brahmaputra Project", status: "Ongoing", startDate: "2026-10-26", endDate: "", order: 1, featured: true, cover: river,
       summary: "A long-term study of who decides what happens to a shared river, and how communities downstream can be heard.",
+      sources: [{ citation: "Placeholder source. *Case name* (Court, year).", url: "" }, { citation: "Another placeholder: Author, *Title* (Publisher 2026).", url: "https://example.org" }],
       body: "## The question\n\nPlaceholder text. What legal and diplomatic framework could give downstream communities reliable data, advance notice and a voice?\n\n![A placeholder image](" + river + " \"Images carry captions like this.\")\n\n## What exists so far\n\n- A legal map of the relevant instruments\n- A first draft instrument\n- A monitoring dashboard", published: true },
     { id: "p2", slug: "second-project", title: "A second project", status: "Complete", startDate: "2026-11-02", endDate: "2027-01-20", order: 2, featured: false, cover: "",
       summary: "Every project gets its own page and its own thread of writing.", body: "Placeholder.", published: true }
   ],
   posts: [
+    { id: "u1", type: "update", slug: "update-demo1", projectId: "p1", date: "2026-11-20", title: "First legal map drafted", published: true, excerpt: "",
+      body: "Placeholder **update**. Short dated notes like this appear under the project, newest first." },
+    { id: "u2", type: "update", slug: "update-demo2", projectId: "p1", date: "2026-11-05", title: "", published: true, excerpt: "",
+      body: "An update with no title still shows its date and text." },
     { id: "w1", slug: "why-this-river", title: "Why this river", date: "2026-11-09", projectId: "p1", published: true, excerpt: "",
       body: "Placeholder essay. Posts attached to a project appear on that project's page and in the timeline.\n\nA second paragraph, with a [link to the project](/projects/brahmaputra-project) that opens a preview window when you hover it." },
     { id: "w2", slug: "notes-on-drafting", title: "Notes on drafting a convention", date: "2026-10-30", projectId: "", published: true, excerpt: "A standalone post that belongs to no project.",
       body: "Standalone posts show up on the Writing page only." }
   ],
   timeline: [
-    { id: "t1", date: "2026-10-18", title: "Started the site", description: "First commit of the public record." }
+    { id: "t1", date: "2026-10-18", title: "Started the site", description: "First commit of the public record." },
+    { id: "t2", kind: "award", date: "2026-11-14", award: "Best Delegate", title: "Best Delegate", event: "Example MUN 2026", committee: "Disarmament and International Security", portfolio: "Delegation of Example", description: "Placeholder entry.", onTimeline: true },
+    { id: "t3", kind: "award", date: "2026-09-20", award: "Verbal Mention", title: "Verbal Mention", event: "Sample Model UN", committee: "UN Environment Assembly", portfolio: "Delegation of Sample", description: "", onTimeline: true }
   ]
 };
