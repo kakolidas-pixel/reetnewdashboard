@@ -15,6 +15,8 @@ service cloud.firestore {
     match /posts/{doc}     { allow read: if resource.data.published == true || isOwner(); allow write: if isOwner(); }
     match /projects/{doc}  { allow read: if resource.data.published == true || isOwner(); allow write: if isOwner(); }
 
+    match /books/{doc}     { allow read: if resource.data.published == true || isOwner(); allow write: if isOwner(); }
+
     match /media/{doc}     { allow read, write: if isOwner(); }
 
     // Contact form: anyone may leave a message of sensible size; only the owner can read or change them.

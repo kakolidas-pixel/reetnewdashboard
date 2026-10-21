@@ -15,9 +15,10 @@ async function boot() {
   const P = await import("./pages.js");
   const X = await import("./extras.js");
   const L = await import("./links.js");
+  const K = await import("./books.js");
   const { authApi, store } = core;
 
-  const NAV = [["", "Overview"], ["writing", "Writing"], ["projects", "Projects"], ["awards", "Awards"], ["timeline", "Timeline"], ["links", "Links"], ["pages", "Pages"], ["media", "Media"], ["messages", "Messages"]];
+  const NAV = [["", "Overview"], ["writing", "Writing"], ["projects", "Projects"], ["awards", "Awards"], ["books", "Books"], ["timeline", "Timeline"], ["links", "Links"], ["pages", "Pages"], ["media", "Media"], ["messages", "Messages"]];
   const stage = h("main", { class: "stage", id: "stage", tabindex: "-1" });
   const badge = h("span", { class: "badge", hidden: true });
   let shell = false;
@@ -80,7 +81,7 @@ async function boot() {
     try {
       if (seg === "writing" && arg) await V.editor("posts")(stage, arg);
       else if (seg === "projects" && arg) await V.editor("projects")(stage, arg);
-      else await ({ "": V.overview, writing: V.writing, projects: V.projects, awards: X.awards, links: L.links, timeline: P.timeline, pages: P.pages, media: P.media, messages: P.messages }[seg] || V.overview)(stage);
+      else await ({ "": V.overview, writing: V.writing, projects: V.projects, awards: X.awards, books: K.books, links: L.links, timeline: P.timeline, pages: P.pages, media: P.media, messages: P.messages }[seg] || V.overview)(stage);
     } catch (err) {
       console.error(err);
       stage.replaceChildren(h("p", {}, "This screen couldn't load. Check your connection and sign-in, then reload."));

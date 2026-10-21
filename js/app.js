@@ -186,6 +186,31 @@ async function awards() {
   };
 }
 
+const bookStars = n => n ? "&#9733;".repeat(n) + "&#9734;".repeat(5 - n) : "";
+const bookRow = b => `<li><span class="t">${esc(b.title)}</span>${b.author ? `<span class="by">by ${esc(b.author)}</span>` : ""}${bookStars(b.rating) ? `<span class="stars">${bookStars(b.rating)}</span>` : ""}${b.status !== "Read" ? `<span class="kind">${esc(b.status)}</span>` : ""}${b.review ? `<div class="prose review">${md(b.review)}</div>` : ""}</li>`;
+
+async function books() {
+  const B = await data.books();
+  const dated = B.filter(b => b.date).sort((a, b) => b.date.localeCompare(a.date));
+  const undated = B.filter(b => !b.date);
+  const years = {};
+  dated.forEach(b => (years[b.date.slice(0, 4)] ||= []).push(b));
+  const yearKeys = Object.keys(years).sort().reverse();
+  const max = Math.max(1, ...yearKeys.map(y => years[y].length));
+  const chart = yearKeys.length
+    ? `<div class="book-chart" role="img" aria-label="Books finished per year">
+        ${yearKeys.slice().reverse().map(y => `<div class="bar-col"><span class="n">${years[y].length}</span><span class="bar" style="height:${Math.round(years[y].length / max * 100)}%"></span><span class="y">${esc(y)}</span></div>`).join("")}
+      </div>` : "";
+  const body = yearKeys.map(y => `<section class="yr"><h3 class="yr-n">${esc(y)}</h3><ul class="book-list">${years[y].map(bookRow).join("")}</ul></section>`).join("");
+  return {
+    title: "Books",
+    html: `<h1 class="page-title">Books</h1><p class="page-sub">What I've been reading, and what I thought of it.</p>
+      ${chart}
+      ${undated.length ? `<h2 class="sec">Currently reading</h2><ul class="book-list">${undated.map(bookRow).join("")}</ul>` : ""}
+      ${body ? `<div class="timeline">${body}</div>` : (!undated.length ? `<p class="empty">Nothing here yet.</p>` : "")}`
+  };
+}
+
 async function contact() {
   return {
     title: "Contact",
@@ -274,7 +299,7 @@ async function resolvePreview(url) {
 
 const routes = [
   [/^\/$/, home], [/^\/about$/, about], [/^\/projects$/, projects], [/^\/projects\/([^/]+)$/, project],
-  [/^\/awards$/, awards], [/^\/writing$/, writing], [/^\/writing\/([^/]+)$/, post], [/^\/contact$/, contact]
+  [/^\/awards$/, awards], [/^\/books$/, books], [/^\/writing$/, writing], [/^\/writing\/([^/]+)$/, post], [/^\/contact$/, contact]
 ];
 
 // Small-caps the opening few words of an article's first paragraph. Done by wrapping actual

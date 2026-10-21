@@ -43,5 +43,11 @@ export const demo = {
     { id: "t1", date: "2026-10-18", title: "Started the site", description: "First commit of the public record." },
     { id: "t2", kind: "award", date: "2026-11-14", award: "Best Delegate", title: "Best Delegate", event: "Example MUN 2026", committee: "Disarmament and International Security", portfolio: "Delegation of Example", description: "Placeholder entry.", onTimeline: true },
     { id: "t3", kind: "award", date: "2026-09-20", award: "Verbal Mention", title: "Verbal Mention", event: "Sample Model UN", committee: "UN Environment Assembly", portfolio: "Delegation of Sample", description: "", onTimeline: true }
+  ],
+  books: [
+    { id: "b1", title: "Placeholder Book One", author: "An Author", status: "Read", rating: 5, date: "2026-10-05", review: "Placeholder review text.", published: true },
+    { id: "b2", title: "Placeholder Book Two", author: "Another Author", status: "Read", rating: 3, date: "2026-07-22", review: "", published: true },
+    { id: "b3", title: "A Book From Last Year", author: "Someone Else", status: "Read", rating: 4, date: "2025-12-01", review: "", published: true },
+    { id: "b4", title: "Currently Reading This", author: "Current Author", status: "Reading", rating: 0, date: "", review: "", published: true }
   ]
 };

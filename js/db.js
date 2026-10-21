@@ -65,6 +65,7 @@ export const settings = () => isConfigured
 export const projects = async () => [...await list("projects", true)].sort(byOrder);
 export const posts = async () => [...await list("posts", true)].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
 export const timeline = () => list("timeline", false);
+export const books = () => list("books", true);
 
 // A link's saved preview (captured in Desk). Returns null if none has been saved.
 const prevMem = new Map();
