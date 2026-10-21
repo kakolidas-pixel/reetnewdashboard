@@ -9,10 +9,13 @@
 }
 *{box-sizing:border-box}
 html{background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:19px;line-height:1.6;
-  -webkit-text-size-adjust:100%;text-rendering:optimizeLegibility;font-kerning:normal;font-variant-numeric:oldstyle-nums}
+  -webkit-text-size-adjust:100%;text-rendering:optimizeLegibility;font-kerning:normal;font-variant-numeric:oldstyle-nums;
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cpath d='M1 1 L1 13 L4 10.3 L6.3 15 L8.2 14 L5.9 9.3 L10 9.3 Z' fill='%23e1dfd8' stroke='%231c1c1c' stroke-width='1' stroke-linejoin='round'/%3E%3C/svg%3E") 1 1,auto}
 body{margin:0;min-height:100vh;display:flex;flex-direction:column}
 ::selection{background:var(--yel);color:var(--on-yel)}
 .skip{position:absolute;left:-99rem}.skip:focus{left:1rem;top:1rem;background:var(--yel);color:var(--on-yel);padding:.3rem .6rem;z-index:99}
+/* Keep the system pointer-hand on clickable elements so affordance isn't lost under the custom arrow. */
+a,button,select,input[type="submit"],[role="button"]{cursor:pointer}
 
 /* links: a yellow underline that becomes a highlight, like the selection colour */
 a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--yel);text-decoration-thickness:1px;text-underline-offset:.18em;transition:background-color .15s ease,color .15s ease}
