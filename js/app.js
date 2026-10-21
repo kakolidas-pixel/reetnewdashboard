@@ -7,6 +7,12 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const D = (iso, o = { day: "numeric", month: "long", year: "numeric" }) => iso ? new Date(iso + "T00:00:00").toLocaleDateString("en-US", o) : "";
 const MY = { month: "long", year: "numeric" };
 
+// External link previews: a summary card (title, description, image) fetched from a link-preview service,
+// because browsers cannot read other websites directly and most sites refuse to be embedded.
+// Set this to "" to turn it off. The address of a hovered link is sent to this service.
+const PREVIEW_SERVICE = "https://api.microlink.io/?url=";
+const PREVIEW_DAYS = 14;
+
 let S = {};
 const view = $("#view");
 
@@ -203,10 +209,35 @@ const notFound = () => ({ title: "Not found", html: `<h1 class="page-title">Not 
 
 /* ---------- link previews ---------- */
 
+async function externalPreview(u) {
+  const host = u.hostname.replace(/^www\./, "");
+  const plain = { external: true, title: host, heading: "External link", text: "This opens another website in a new tab.", url: u.href };
+  if (!PREVIEW_SERVICE) return plain;
+  const key = "ar:ext:" + u.href;
+  try {
+    const hit = JSON.parse(localStorage.getItem(key) || "null");
+    if (hit && Date.now() - hit.t < PREVIEW_DAYS * 864e5) return { ...plain, ...hit.v };
+  } catch { /* ignore */ }
+  try {
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 7000);
+    const r = await fetch(PREVIEW_SERVICE + encodeURIComponent(u.href), { signal: ctl.signal });
+    clearTimeout(timer);
+    const j = await r.json();
+    if (!r.ok || j.status !== "success" || !j.data) return plain;
+    const d = j.data, img = d.image?.url || d.logo?.url || "";
+    const v = {
+      title: d.publisher || host, heading: d.title || host, meta: host,
+      text: d.description || plain.text, image: /^https:\/\//.test(img) ? img : ""
+    };
+    try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v })); } catch { /* storage full */ }
+    return { ...plain, ...v };
+  } catch { return plain; }
+}
+
 async function resolvePreview(url) {
   const u = new URL(url);
   const internal = u.origin === location.origin && u.pathname === location.pathname && u.hash.startsWith("#/");
-  if (!internal) return { external: true, title: u.hostname.replace(/^www\./, ""), heading: "External link", text: "This opens another website in a new tab.", url: u.href };
+  if (!internal) return externalPreview(u);
   const path = u.hash.slice(1).split("?")[0].replace(/\/+$/, "") || "/";
   let m;
   if ((m = path.match(/^\/projects\/([^/]+)$/))) {

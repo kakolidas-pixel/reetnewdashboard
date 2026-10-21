@@ -2,26 +2,26 @@
 // Windows can be dragged, pinned by clicking inside them, and closed with the box, Esc, or a click elsewhere.
 const fine = matchMedia("(hover:hover) and (pointer:fine)");
 const wins = new Map();
-let zTop = 60, resolver = null;
+let zTop = 60, resolver = null, hoverTimer;
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const keyOf = a => new URL(a.href, location.href).href;
 
-export function closeAll() { [...wins.values()].forEach(w => w.close()); }
+export function closeAll() { clearTimeout(hoverTimer); [...wins.values()].forEach(w => w.close()); }
 
 export function initPopups(resolve) {
   resolver = resolve;
-  let timer;
   document.addEventListener("mouseover", e => {
     if (!fine.matches) return;
     const a = e.target.closest?.("a.peek"); if (!a) return;
     const w = wins.get(keyOf(a));
     if (w) { w.enter(); return; }
-    clearTimeout(timer);
-    timer = setTimeout(() => open(a, false), 380);
+    clearTimeout(hoverTimer);
+    // Never open for a link that has already been removed by a page change.
+    hoverTimer = setTimeout(() => { if (a.isConnected) open(a, false); }, 380);
   });
   document.addEventListener("mouseout", e => {
     const a = e.target.closest?.("a.peek"); if (!a) return;
-    clearTimeout(timer);
+    clearTimeout(hoverTimer);
     wins.get(keyOf(a))?.leave();
   });
   // On touch screens the first tap opens the preview; "Open page" inside it follows the link.
@@ -31,6 +31,8 @@ export function initPopups(resolve) {
     e.preventDefault(); e.stopPropagation();
     open(a, true);
   }, true);
+  document.addEventListener("pointerdown", e => { if (e.target.closest?.("a")) clearTimeout(hoverTimer); }, true);
+  window.addEventListener("hashchange", closeAll);
   document.addEventListener("keydown", e => { if (e.key === "Escape") [...wins.values()].pop()?.close(); });
   document.addEventListener("pointerdown", e => {
     if (!e.target.closest?.(".win,a.peek")) [...wins.values()].forEach(w => { if (!w.pinned) w.close(); });
@@ -58,6 +60,7 @@ function drag(el, bar) {
 }
 
 function open(a, pin) {
+  if (!a.isConnected) return;
   const k = keyOf(a);
   const have = wins.get(k);
   if (have) { have.enter(); have.front(); if (pin) have.pinned = true; return; }
