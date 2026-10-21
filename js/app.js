@@ -196,16 +196,13 @@ async function books() {
   const years = {};
   dated.forEach(b => (years[b.date.slice(0, 4)] ||= []).push(b));
   const yearKeys = Object.keys(years).sort().reverse();
-  const max = Math.max(1, ...yearKeys.map(y => years[y].length));
-  const chart = yearKeys.length
-    ? `<div class="book-chart" role="img" aria-label="Books finished per year">
-        ${yearKeys.slice().reverse().map(y => `<div class="bar-col"><span class="n">${years[y].length}</span><span class="bar" style="height:${Math.round(years[y].length / max * 100)}%"></span><span class="y">${esc(y)}</span></div>`).join("")}
-      </div>` : "";
-  const body = yearKeys.map(y => `<section class="yr"><h3 class="yr-n">${esc(y)}</h3><ul class="book-list">${years[y].map(bookRow).join("")}</ul></section>`).join("");
+  const body = yearKeys.map(y => {
+    const n = years[y].length;
+    return `<section class="yr"><h3 class="yr-n">${esc(y)}<span class="yr-count">${n} ${n === 1 ? "book" : "books"}</span></h3><ul class="book-list">${years[y].map(bookRow).join("")}</ul></section>`;
+  }).join("");
   return {
     title: "Books",
     html: `<h1 class="page-title">Books</h1><p class="page-sub">What I've been reading, and what I thought of it.</p>
-      ${chart}
       ${undated.length ? `<h2 class="sec">Currently reading</h2><ul class="book-list">${undated.map(bookRow).join("")}</ul>` : ""}
       ${body ? `<div class="timeline">${body}</div>` : (!undated.length ? `<p class="empty">Nothing here yet.</p>` : "")}`
   };

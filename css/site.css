@@ -15,7 +15,7 @@ body{margin:0;min-height:100vh;display:flex;flex-direction:column}
 .skip{position:absolute;left:-99rem}.skip:focus{left:1rem;top:1rem;background:var(--yel);color:var(--on-yel);padding:.3rem .6rem;z-index:99}
 
 /* links: a yellow underline that becomes a highlight, like the selection colour */
-a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--yel);text-decoration-thickness:1px;text-underline-offset:.18em}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--yel);text-decoration-thickness:1px;text-underline-offset:.18em;transition:background-color .15s ease,color .15s ease}
 a:hover{background:var(--yel);color:var(--on-yel);text-decoration-color:transparent}
 a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--yel);outline-offset:3px}
 
@@ -99,6 +99,7 @@ img:hover,a:hover img,figure:hover img,.entry:hover img{filter:none}
 .timeline{margin:0;padding:0;list-style:none}
 .yr{display:grid;grid-template-columns:5.6rem 1fr;gap:0 1rem;border-top:1px solid var(--rule);padding:1.3rem 0 .5rem}
 .yr-n{font-size:2.5rem;line-height:1;font-weight:500;color:var(--yel);margin:0;position:sticky;top:1rem;align-self:start}
+.yr-count{display:block;font-size:.85rem;font-weight:400;font-style:italic;color:var(--ink3);margin-top:.3rem}
 .yr-items{list-style:none;margin:0;padding:0}
 .yr-items li{display:grid;grid-template-columns:4.4rem 1fr;gap:.8rem;padding:.35rem 0 1rem}
 .yr-items time{color:var(--ink3);font-size:.95rem;padding-top:.18rem}
@@ -107,11 +108,6 @@ img:hover,a:hover img,figure:hover img,.entry:hover img{filter:none}
 .yr-items p{margin:.15rem 0 0;color:var(--ink2);font-size:.98rem;line-height:1.5;max-width:30rem}
 
 /* books */
-.book-chart{display:flex;align-items:flex-end;gap:1.2rem;height:7rem;margin:2.4rem 0 1rem;padding:0 .2rem 1.5rem;border-bottom:1px solid var(--rule)}
-.book-chart .bar-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%;position:relative;max-width:3.2rem}
-.book-chart .n{font-size:.85rem;color:var(--ink3);margin-bottom:.3rem}
-.book-chart .bar{width:70%;background:var(--yel);min-height:3px}
-.book-chart .y{position:absolute;bottom:-1.5rem;font-size:.85rem;color:var(--ink3)}
 .book-list{list-style:none;margin:0;padding:0}
 .book-list li{padding:1rem 0;border-top:1px solid var(--rule)}
 .book-list .t{font-size:1.15rem}
