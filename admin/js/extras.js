@@ -38,10 +38,12 @@ export function sourcesPanel(doc, changed) {
 /* ---------- dated updates under a project ---------- */
 // getId() returns the project's id once it exists. ensureSaved() saves the project first if needed and returns its id.
 export function updatesPanel({ getId, ensureSaved }) {
-  let editing = null, editingPublished = false;
+  let editing = null, editingPublished = false, editSources = [];
   const date = h("input", { type: "date", value: iso(new Date()) });
   const title = h("input", { placeholder: "Optional title, such as “Season data added”" });
   const body = mdEditor({ value: "", tall: false });
+  const sourcesWrap = h("div");
+  const drawSources = () => sourcesWrap.replaceChildren(sourcesPanel({ sources: editSources }, () => {}));
   const list = h("div", { class: "upd-list" });
   const actions = h("div", { class: "actions left" });
 
@@ -51,7 +53,7 @@ export function updatesPanel({ getId, ensureSaved }) {
     const pid = await ensureSaved();
     if (!pid) return;
     const now = new Date().toISOString();
-    const rec = { type: "update", projectId: pid, title: title.value.trim(), body: text, date: date.value || iso(new Date()), published: publish, updatedAt: now };
+    const rec = { type: "update", projectId: pid, title: title.value.trim(), body: text, date: date.value || iso(new Date()), sources: editSources, published: publish, updatedAt: now };
     if (!editing) { rec.slug = "update-" + Date.now().toString(36); rec.excerpt = ""; rec.createdAt = now; }
     try {
       await store.save("posts", editing, rec);
@@ -67,7 +69,7 @@ export function updatesPanel({ getId, ensureSaved }) {
       editing && h("button", { class: "linkish", type: "button", onclick: reset }, "Cancel editing")
     ].filter(Boolean));
   }
-  function reset() { editing = null; editingPublished = false; title.value = ""; body.set(""); date.value = iso(new Date()); drawActions(); }
+  function reset() { editing = null; editingPublished = false; title.value = ""; body.set(""); date.value = iso(new Date()); editSources = []; drawSources(); drawActions(); }
 
   async function load() {
     const pid = getId();
@@ -79,16 +81,17 @@ export function updatesPanel({ getId, ensureSaved }) {
       h("span", { class: "t" }, u.title || (u.body || "").replace(/\s+/g, " ").slice(0, 70) || "Untitled update"),
       h("span", { class: "tag " + (u.published ? "live" : "") }, u.published ? "Published" : "Draft"),
       h("span", { class: "acts" },
-        h("button", { class: "linkish", type: "button", onclick: () => { editing = u.id; editingPublished = !!u.published; title.value = u.title || ""; date.value = u.date || iso(new Date()); body.set(u.body || ""); drawActions(); window.scrollTo({ top: panelEl.offsetTop - 80, behavior: "smooth" }); } }, "Edit"),
+        h("button", { class: "linkish", type: "button", onclick: () => { editing = u.id; editingPublished = !!u.published; title.value = u.title || ""; date.value = u.date || iso(new Date()); body.set(u.body || ""); editSources = u.sources || []; drawSources(); drawActions(); window.scrollTo({ top: panelEl.offsetTop - 80, behavior: "smooth" }); } }, "Edit"),
         h("button", { class: "linkish", type: "button", onclick: async () => { if (await confirmBox("Delete this update?", "Delete")) { try { await store.remove("posts", u.id); toast("Deleted", "ok"); if (editing === u.id) reset(); load(); } catch (e) { console.error(e); toast("Couldn't delete.", "bad"); } } } }, "Delete"))))
       : [h("p", { class: "muted" }, "No updates yet.")]));
   }
 
   drawActions();
+  drawSources();
   const panelEl = panel("Updates",
     h("p", { class: "muted tiny", style: "margin:0 0 .8rem" }, "Short dated notes that appear under this project on the site, newest first. They also join the home-page timeline."),
     h("div", { class: "two" }, field("Date", date), field("Title", title)),
-    body.el, actions, h("h3", { class: "sub" }, "Posted so far"), list);
+    body.el, sourcesWrap, actions, h("h3", { class: "sub" }, "Posted so far"), list);
   load();
   return { el: panelEl, refresh: load };
 }

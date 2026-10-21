@@ -89,6 +89,12 @@ async function projects() {
   };
 }
 
+const sourcesList = sources => {
+  const s = (sources || []).filter(x => (x.citation || "").trim());
+  return s.length ? `<ol class="sources">${s.map(x => `<li>${inline(x.citation)}${x.url ? ` <a href="${esc(x.url)}">Link</a>` : ""}</li>`).join("")}</ol>` : "";
+};
+const sourcesSection = sources => sources.length ? `<h2 class="sec">Sources</h2>${sourcesList(sources)}` : "";
+
 async function project([, slug]) {
   const [P, W] = await Promise.all([data.projects(), data.posts()]);
   const p = P.find(x => x.slug === slug);
@@ -102,9 +108,9 @@ async function project([, slug]) {
       ${tagLine(p.tags)}
       ${p.cover ? `<figure class="hero-img"><img src="${esc(p.cover)}" alt=""></figure>` : ""}
       <div class="prose" data-md>${md(p.body)}</div>
-      ${updates.length ? `<h2 class="sec">Updates</h2>${updates.map(u => `<article class="upd"><time datetime="${u.date}">${D(u.date, { day: "numeric", month: "short", year: "numeric" })}</time><div>${u.title ? `<h3>${esc(u.title)}</h3>` : ""}<div class="prose">${md(u.body)}</div></div></article>`).join("")}` : ""}
+      ${updates.length ? `<h2 class="sec">Updates</h2>${updates.map(u => `<article class="upd"><time datetime="${u.date}">${D(u.date, { day: "numeric", month: "short", year: "numeric" })}</time><div>${u.title ? `<h3>${esc(u.title)}</h3>` : ""}<div class="prose">${md(u.body)}</div>${(u.sources || []).length ? `<div class="upd-sources"><p class="label">Sources</p>${sourcesList(u.sources)}</div>` : ""}</div></article>`).join("")}` : ""}
       ${related.length ? `<h2 class="sec related">Writing on this project</h2>${related.map(w => postRow(w, [])).join("")}` : ""}
-      ${sources.length ? `<h2 class="sec">Sources</h2><ol class="sources">${sources.map(s => `<li>${inline(s.citation)}${s.url ? ` <a href="${esc(s.url)}">Link</a>` : ""}</li>`).join("")}</ol>` : ""}`
+      ${sourcesSection(sources)}`
   };
 }
 
@@ -149,13 +155,15 @@ async function post([, slug]) {
   const w = W.find(x => x.slug === slug);
   if (!w) return notFound();
   const proj = P.find(p => p.id === w.projectId);
+  const sources = (w.sources || []).filter(s => (s.citation || "").trim());
   return {
     title: w.title,
     html: `<h1 class="page-title">${esc(w.title)}</h1>
       <p class="meta">${D(w.date)}, ${readingTime(w.body)} min read${proj ? `. Part of <a href="/projects/${esc(proj.slug)}">${esc(proj.title)}</a>` : ""}</p>
       ${tagLine(w.tags)}
       ${w.cover ? `<figure class="hero-img"><img src="${esc(w.cover)}" alt=""></figure>` : ""}
-      <div class="prose" data-md>${md(w.body)}</div>`
+      <div class="prose" data-md>${md(w.body)}</div>
+      ${sourcesSection(sources)}`
   };
 }
 

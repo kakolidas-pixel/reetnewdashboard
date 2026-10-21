@@ -94,7 +94,7 @@ export async function projects(stage) {
 
 /* ---------- document editor (posts and projects) ---------- */
 const CFG = {
-  posts: { col: "posts", noun: "post", route: "writing", site: "writing", blank: () => ({ title: "", slug: "", body: "", excerpt: "", date: iso(new Date()), projectId: "", tags: [], cover: "", published: false }) },
+  posts: { col: "posts", noun: "post", route: "writing", site: "writing", blank: () => ({ title: "", slug: "", body: "", excerpt: "", date: iso(new Date()), projectId: "", tags: [], cover: "", sources: [], published: false }) },
   projects: { col: "projects", noun: "project", route: "projects", site: "projects", blank: () => ({ title: "", slug: "", body: "", summary: "", status: "Ongoing", startDate: iso(new Date()), endDate: "", cover: "", tags: [], featured: false, order: 10, sources: [], published: false }) }
 };
 
@@ -161,7 +161,7 @@ export const editor = kind => async (stage, id) => {
 
   const md = mdEditor({ value: doc.body, onInput: v => { doc.body = v; changed(); } });
   const ensureSaved = async () => docId || ((await save()) ? docId : null);
-  const extras = kind === "projects" ? [sourcesPanel(doc, changed), updatesPanel({ getId: () => docId, ensureSaved }).el] : [];
+  const extras = kind === "projects" ? [sourcesPanel(doc, changed), updatesPanel({ getId: () => docId, ensureSaved }).el] : [sourcesPanel(doc, changed)];
   const tagsEl = h("input", { value: (doc.tags || []).join(", "), placeholder: "law, water, policy" });
   tagsEl.addEventListener("input", () => { doc.tags = tagsEl.value.split(",").map(t => t.trim()).filter(Boolean); changed(); });
 

@@ -114,6 +114,9 @@ img:hover,a:hover img,figure:hover img,.entry:hover img{filter:none}
 .sources{padding-left:1.5rem;margin:0;max-width:40rem;color:var(--ink2);font-size:1rem}
 .sources li{margin:.55rem 0}
 .sources a{color:var(--ink)}
+.upd-sources{margin-top:.9rem}
+.upd-sources .label{margin:0 0 .3rem;font-style:italic;color:var(--ink3);font-size:.85rem}
+.upd-sources .sources{font-size:.92rem;padding-left:1.3rem}
 
 /* writing list */
 .filters{display:flex;flex-wrap:wrap;gap:.3rem 1.3rem;margin:0 0 1.6rem}
