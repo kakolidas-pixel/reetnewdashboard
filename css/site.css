@@ -51,13 +51,15 @@ h2.sec{font-size:1.6rem;margin:4.2rem 0 1.1rem}
 .prose p{margin:0 0 1.1em;hyphens:auto;text-align:justify}
 .prose h2{font-size:1.75rem;margin:2.2em 0 .5em}
 .prose h3{font-size:1.3rem;margin:1.8em 0 .4em;font-style:italic}
-.prose h2+p::first-line,.prose h3+p::first-line{font-variant-caps:all-small-caps;letter-spacing:.02em}
-.prose[data-md]>p:first-of-type::first-letter{float:left;font-size:3.2em;line-height:.76;font-weight:500;color:var(--yel);padding:.03em .08em 0 0}
+.prose[data-md]>p:first-of-type::first-letter{float:left;font-size:3em;line-height:.78;font-weight:500;color:var(--yel);margin:.05em .1em 0 0}
 .prose ul,.prose ol{padding-left:1.4em;margin:0 0 1.1em}
 .prose li{margin:.2em 0}
-.prose blockquote{position:relative;margin:1.5em 0;padding:.1em 0 .1em 2rem;border-left:2px solid var(--yel);color:var(--ink2);font-style:italic;font-size:1.06em}
-.prose blockquote::before{content:"\201C";position:absolute;left:.3rem;top:-.1em;font-size:1.8em;font-style:normal;color:var(--yel);line-height:1}
-.prose hr{border:0;border-top:1px solid var(--rule);margin:2.4em 0}
+.prose blockquote{position:relative;margin:1.7em 0 1.7em 1.9rem;padding:0 0 0 1.4rem;border-left:1px solid var(--yel);color:var(--ink2);font-size:1.04em;line-height:1.65}
+.prose blockquote p{text-align:left}
+.prose blockquote::before{content:"\201C";position:absolute;left:-2rem;top:-.22em;font-size:2.7rem;font-family:var(--serif);color:var(--yel);line-height:1}
+.prose blockquote footer,.prose blockquote>p:last-child em:only-child{color:var(--ink3);font-size:.9em;font-style:normal;margin-top:.4em}
+.prose hr{border:0;margin:2.6em 0;text-align:center;color:var(--ink3);font-size:1.1rem;letter-spacing:.6em}
+.prose hr::after{content:"\2042"}
 .prose code{font-family:var(--type);font-size:.82em;background:var(--bg2);padding:.1em .35em}
 .prose pre{background:var(--bg2);padding:1rem;overflow:auto;line-height:1.45}
 .prose pre code{background:none;padding:0}
@@ -120,7 +122,7 @@ img:hover,a:hover img,figure:hover img,.entry:hover img{filter:none}
 .post h3{font-size:1.4rem;line-height:1.25}
 .post .from{font-style:italic;color:var(--ink3);font-size:.95rem;margin:.1rem 0 .3rem}
 .post p{margin:.2rem 0 0;color:var(--ink2);max-width:33rem;font-size:1rem;line-height:1.5}
-.tags{font-size:.85rem;color:var(--ink3);margin:.4rem 0 0;font-variant-caps:all-small-caps;letter-spacing:.03em}
+.tags{font-size:.85rem;color:var(--ink3);font-style:italic;margin:.4rem 0 0}
 .post .tags{margin-top:.3rem}
 
 /* article / project header */
