@@ -323,7 +323,7 @@ window.addEventListener("hashchange", () => renderPage());
 
 function chrome() {
   $("#wordmark").textContent = S.siteTitle;
-  $("#foot").innerHTML = `<p>${esc(S.footerNote)}</p><p>&copy; ${new Date().getFullYear()} ${esc(S.siteTitle)}${data.demoMode ? ". Demo content." : ""}</p>`;
+  $("#foot").innerHTML = `<p>${esc(S.footerNote)}</p><p>&copy; ${new Date().getFullYear()} ${esc(S.siteTitle)}${data.demoMode ? ". Demo content." : ""} &middot; Design inspired by <a href="https://gwern.net">gwern.net</a></p>`;
 }
 
 (async function start() {
