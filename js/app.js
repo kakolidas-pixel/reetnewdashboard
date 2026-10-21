@@ -269,7 +269,43 @@ const routes = [
   [/^\/awards$/, awards], [/^\/writing$/, writing], [/^\/writing\/([^/]+)$/, post], [/^\/contact$/, contact]
 ];
 
+// Small-caps the opening few words of an article's first paragraph. Done by wrapping actual
+// text nodes (not a ::first-line rule) because ::first-line doesn't combine reliably with the
+// floated drop-cap letter across browsers.
+function capLede(root) {
+  root.querySelectorAll(".prose[data-md] > p:first-of-type").forEach(p => {
+    const span = document.createElement("span");
+    span.className = "lede-caps";
+    const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    let words = 0, node;
+    while ((node = walker.nextNode())) {
+      // Bail if the opening words reach into a link/emphasis/footnote: moving just the text
+      // node would strip it out of its inline element and break the markup.
+      if (node.parentNode !== p) return;
+      const text = node.textContent;
+      let idx = 0, done = false;
+      let m;
+      while ((m = /\S+/.exec(text.slice(idx)))) {
+        words++;
+        idx += m.index + m[0].length;
+        if (words >= 6) {
+          if (idx < text.length) node.splitText(idx);
+          done = true;
+          break;
+        }
+      }
+      nodes.push(node);
+      if (done) break;
+    }
+    if (!nodes.length) return;
+    nodes[0].before(span);
+    nodes.forEach(n => span.appendChild(n));
+  });
+}
+
 function decorate(root) {
+  capLede(root);
   root.querySelectorAll("a[href]").forEach(a => {
     let href = a.getAttribute("href");
     // Authors can write /projects/my-project in markdown; on this site that means #/projects/my-project.
