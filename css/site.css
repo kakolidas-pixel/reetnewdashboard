@@ -117,6 +117,8 @@ img:hover,a:hover img,figure:hover img,.entry:hover img{filter:none}
 .post h3{font-size:1.4rem;line-height:1.25}
 .post .from{font-style:italic;color:var(--ink3);font-size:.95rem;margin:.1rem 0 .3rem}
 .post p{margin:.2rem 0 0;color:var(--ink2);max-width:33rem;font-size:1rem;line-height:1.5}
+.tags{font-size:.85rem;color:var(--ink3);margin:.4rem 0 0}
+.post .tags{margin-top:.3rem}
 
 /* article / project header */
 .meta{color:var(--ink3);font-style:italic;margin:0 0 2rem}

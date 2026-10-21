@@ -99,6 +99,7 @@ async function project([, slug]) {
   return {
     title: p.title,
     html: `<h1 class="page-title">${esc(p.title)}</h1><p class="meta">${esc(statusLine(p))}</p>
+      ${tagLine(p.tags)}
       ${p.cover ? `<figure class="hero-img"><img src="${esc(p.cover)}" alt=""></figure>` : ""}
       <div class="prose" data-md>${md(p.body)}</div>
       ${updates.length ? `<h2 class="sec">Updates</h2>${updates.map(u => `<article class="upd"><time datetime="${u.date}">${D(u.date, { day: "numeric", month: "short", year: "numeric" })}</time><div>${u.title ? `<h3>${esc(u.title)}</h3>` : ""}<div class="prose">${md(u.body)}</div></div></article>`).join("")}` : ""}
@@ -106,6 +107,9 @@ async function project([, slug]) {
       ${sources.length ? `<h2 class="sec">Sources</h2><ol class="sources">${sources.map(s => `<li>${inline(s.citation)}${s.url ? ` <a href="${esc(s.url)}">Link</a>` : ""}</li>`).join("")}</ol>` : ""}`
   };
 }
+
+const tagLine = tags => (tags || []).length
+  ? `<p class="tags">${tags.map(t => `<a href="#/writing?tag=${encodeURIComponent(t)}">${esc(t)}</a>`).join(", ")}</p>` : "";
 
 const postRow = (w, P) => {
   const proj = P.find(p => p.id === w.projectId);
@@ -115,14 +119,16 @@ const postRow = (w, P) => {
   return `<article class="post"><time datetime="${w.date}">${D(w.date, { day: "numeric", month: "short", year: "numeric" })}</time>
     <div><h3><a href="${href}">${title}</a></h3>
     ${proj ? `<p class="from">${isUpd ? "Update &middot; " : ""}<a href="/projects/${esc(proj.slug)}">${esc(proj.title)}</a></p>` : ""}
-    <p>${esc(w.excerpt || excerpt(w.body, 170))}</p></div></article>`;
+    <p>${esc(w.excerpt || excerpt(w.body, 170))}</p>${tagLine(w.tags)}</div></article>`;
 };
 
 async function writing(_, q) {
   const [W0, P] = await Promise.all([data.posts(), data.projects()]);
   const W = W0;
   const f = q.get("project") || "all";
-  const list = W.filter(w => f === "all" ? true : f === "none" ? !w.projectId : f === "updates" ? w.type === "update" : w.projectId === f);
+  const tag = q.get("tag") || "";
+  let list = W.filter(w => f === "all" ? true : f === "none" ? !w.projectId : f === "updates" ? w.type === "update" : w.projectId === f);
+  if (tag) list = list.filter(w => (w.tags || []).includes(tag));
   const cur = k => f === k ? ' aria-current="true"' : "";
   const used = P.filter(p => W.some(w => w.projectId === p.id));
   return {
@@ -133,6 +139,7 @@ async function writing(_, q) {
         <a href="#/writing?project=updates"${cur("updates")}>Updates</a>
         ${used.map(p => `<a href="#/writing?project=${esc(p.id)}"${cur(p.id)}>${esc(p.title)}</a>`).join("")}
       </nav>
+      ${tag ? `<p class="page-sub">Tagged &ldquo;${esc(tag)}&rdquo;. <a href="#/writing${f === "all" ? "" : `?project=${esc(f)}`}">Clear tag</a></p>` : ""}
       ${list.length ? list.map(w => postRow(w, P)).join("") : `<p class="empty">Nothing here yet.</p>`}`
   };
 }
@@ -146,6 +153,7 @@ async function post([, slug]) {
     title: w.title,
     html: `<h1 class="page-title">${esc(w.title)}</h1>
       <p class="meta">${D(w.date)}, ${readingTime(w.body)} min read${proj ? `. Part of <a href="/projects/${esc(proj.slug)}">${esc(proj.title)}</a>` : ""}</p>
+      ${tagLine(w.tags)}
       ${w.cover ? `<figure class="hero-img"><img src="${esc(w.cover)}" alt=""></figure>` : ""}
       <div class="prose" data-md>${md(w.body)}</div>`
   };
