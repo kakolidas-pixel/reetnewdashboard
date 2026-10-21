@@ -58,7 +58,7 @@ export async function overview(stage) {
 /* ---------- writing / projects lists ---------- */
 export async function writing(stage) {
   const [allPosts, projects] = await Promise.all([store.list("posts"), store.list("projects")]);
-  const posts = allPosts.filter(p => p.type !== "update");
+  const posts = allPosts;
   posts.sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.updatedAt || "").localeCompare(a.updatedAt || ""));
   let filter = "all", q = "";
   const list = h("div", { class: "rows" });
@@ -68,9 +68,12 @@ export async function writing(stage) {
     const rows = posts.filter(p => (filter === "all" || (filter === "published") === !!p.published) && (p.title || "").toLowerCase().includes(q));
     list.replaceChildren(...(rows.length ? rows.map(p => {
       const proj = projects.find(x => x.id === p.projectId);
-      return h("a", { class: "row", href: `#/writing/${p.id}` },
-        h("span", { class: "r-title" }, p.title || "Untitled"),
-        h("span", { class: "r-meta" }, [proj?.title, fmtDate(p.date)].filter(Boolean).join(", ")),
+      const isUpd = p.type === "update";
+      // An update's real editor is the Updates panel on its project page, not the generic post editor.
+      const href = isUpd && proj ? `#/projects/${proj.id}` : `#/writing/${p.id}`;
+      return h("a", { class: "row", href },
+        h("span", { class: "r-title" }, p.title || (isUpd ? "Update" : "Untitled")),
+        h("span", { class: "r-meta" }, [isUpd ? "Update" : null, proj?.title, fmtDate(p.date)].filter(Boolean).join(", ")),
         h("span", { class: "tag " + (p.published ? "live" : "") }, p.published ? "Published" : "Draft"));
     }) : [h("p", { class: "muted" }, posts.length ? "Nothing matches." : "No writing yet. Start your first post.")]));
   }
