@@ -302,40 +302,91 @@ const routes = [
   [/^\/awards$/, awards], [/^\/books$/, books], [/^\/writing$/, writing], [/^\/writing\/([^/]+)$/, post], [/^\/contact$/, contact]
 ];
 
-// Small-caps the opening few words of an article's first paragraph. Done by wrapping actual
-// text nodes (not a ::first-line rule) because ::first-line doesn't combine reliably with the
-// floated drop-cap letter across browsers.
+// Small-caps the article's actual first rendered line (not a fixed word count, and not a
+// ::first-line rule -- ::first-line doesn't combine reliably with the floated drop-cap letter
+// across browsers). Measures where the browser really wraps the line with getClientRects(),
+// under the small-caps style already applied (its glyphs are wider than lowercase, so measuring
+// the plain text and transforming it afterwards would shift the wrap point). Re-run on resize
+// and once web fonts finish loading, since both can shift where the line actually wraps.
+function unwrapLede(p) {
+  const span = p.querySelector(":scope > .lede-caps");
+  if (!span) return;
+  while (span.firstChild) span.before(span.firstChild);
+  span.remove();
+  p.normalize();
+}
+
 function capLede(root) {
   root.querySelectorAll(".prose[data-md] > p:first-of-type").forEach(p => {
+    unwrapLede(p);
+    const first = p.firstChild;
+    // Bail if the paragraph doesn't start with plain text: wrapping would otherwise have to
+    // reach into a link/emphasis/footnote and strip it out of its inline element.
+    if (!first || first.nodeType !== Node.TEXT_NODE) return;
+    const directNodes = [];
+    let n = first, text = "";
+    while (n && n.nodeType === Node.TEXT_NODE) { directNodes.push(n); text += n.textContent; n = n.nextSibling; }
+    if (text.length < 2) return;
+
     const span = document.createElement("span");
     span.className = "lede-caps";
-    const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    let words = 0, node;
-    while ((node = walker.nextNode())) {
-      // Bail if the opening words reach into a link/emphasis/footnote: moving just the text
-      // node would strip it out of its inline element and break the markup.
-      if (node.parentNode !== p) return;
-      const text = node.textContent;
-      let idx = 0, done = false;
-      let m;
-      while ((m = /\S+/.exec(text.slice(idx)))) {
-        words++;
-        idx += m.index + m[0].length;
-        if (words >= 6) {
-          if (idx < text.length) node.splitText(idx);
-          done = true;
-          break;
+    directNodes[0].before(span);
+    directNodes.forEach(dn => span.appendChild(dn));
+
+    const rectAt = (startLen, endLen) => {
+      const locate = len => {
+        let remaining = len, target = null, offset = 0;
+        for (const dn of directNodes) {
+          if (remaining <= dn.textContent.length) { target = dn; offset = remaining; break; }
+          remaining -= dn.textContent.length;
         }
+        return [target, offset];
+      };
+      const [sN, sO] = locate(startLen), [eN, eO] = locate(endLen);
+      if (!sN || !eN) return null;
+      const r = document.createRange();
+      r.setStart(sN, sO); r.setEnd(eN, eO);
+      const rects = r.getClientRects();
+      return rects.length ? rects[0].top : null;
+    };
+    // Reference the 2nd character, not the 1st: the 1st is the floated drop-cap letter,
+    // whose box sits in a different position than the surrounding first line of text.
+    const lineTop = rectAt(1, 2);
+    let best = text.length;
+    if (lineTop != null) {
+      let lo = 2, hi = text.length;
+      best = 2;
+      while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+        const top = rectAt(mid - 1, mid);
+        if (top != null && Math.abs(top - lineTop) < 1) { best = mid; lo = mid + 1; }
+        else hi = mid - 1;
       }
-      nodes.push(node);
-      if (done) break;
+      // Don't split a word: if the character just before the cut is mid-word, push forward
+      // to the next space.
+      while (best > 0 && best < text.length && !/\s/.test(text[best - 1])) best++;
     }
-    if (!nodes.length) return;
-    nodes[0].before(span);
-    nodes.forEach(n => span.appendChild(n));
+    if (best >= text.length) return; // the whole run fits on the line; span already covers it
+
+    let remaining = best, splitNode = null, splitOffset = 0;
+    for (const dn of directNodes) {
+      if (remaining <= dn.textContent.length) { splitNode = dn; splitOffset = remaining; break; }
+      remaining -= dn.textContent.length;
+    }
+    const after = splitNode.splitText(splitOffset);
+    let moveNode = after, insertAfter = span;
+    while (moveNode) {
+      const next = moveNode.nextSibling;
+      insertAfter.after(moveNode);
+      insertAfter = moveNode;
+      moveNode = next;
+    }
   });
 }
+
+let ledeResizeTimer;
+window.addEventListener("resize", () => { clearTimeout(ledeResizeTimer); ledeResizeTimer = setTimeout(() => capLede(view), 150); });
+document.fonts?.ready?.then(() => capLede(view));
 
 function decorate(root) {
   capLede(root);
