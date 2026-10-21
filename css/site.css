@@ -167,6 +167,7 @@ form.contact input:focus,form.contact textarea:focus{border-color:var(--yel)}
 .win-body iframe.live{width:100%;height:min(58vh,26rem);border:0;background:#fff;display:block}
 .win-go:hover{background:var(--ink);color:var(--on-yel)}
 @media (max-width:640px){
+  .top nav{flex-wrap:wrap;gap:.5rem 1.1rem}
   .win{left:.75rem!important;right:.75rem;top:auto!important;bottom:.75rem;width:auto}
   .entry{grid-template-columns:1fr}
   .cover img{aspect-ratio:16/9}

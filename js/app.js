@@ -109,15 +109,18 @@ async function project([, slug]) {
 
 const postRow = (w, P) => {
   const proj = P.find(p => p.id === w.projectId);
+  const isUpd = w.type === "update";
+  const title = esc(w.title || (proj ? `Update on ${proj.title}` : "Project update"));
+  const href = isUpd ? `/projects/${esc(proj?.slug || "")}` : `/writing/${esc(w.slug)}`;
   return `<article class="post"><time datetime="${w.date}">${D(w.date, { day: "numeric", month: "short", year: "numeric" })}</time>
-    <div><h3><a href="/writing/${esc(w.slug)}">${esc(w.title)}</a></h3>
-    ${proj ? `<p class="from">${esc(proj.title)}</p>` : ""}
+    <div><h3><a href="${href}">${title}</a></h3>
+    ${proj ? `<p class="from">${isUpd ? "Update &middot; " : ""}<a href="/projects/${esc(proj.slug)}">${esc(proj.title)}</a></p>` : ""}
     <p>${esc(w.excerpt || excerpt(w.body, 170))}</p></div></article>`;
 };
 
 async function writing(_, q) {
   const [W0, P] = await Promise.all([data.posts(), data.projects()]);
-  const W = W0.filter(w => w.type !== "update");
+  const W = W0;
   const f = q.get("project") || "all";
   const list = W.filter(w => f === "all" || (f === "none" ? !w.projectId : w.projectId === f));
   const cur = k => f === k ? ' aria-current="true"' : "";
