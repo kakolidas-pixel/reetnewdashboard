@@ -52,7 +52,7 @@ h2.sec{font-size:1.6rem;margin:4.2rem 0 1.1rem}
 .prose h2{font-size:1.75rem;margin:2.2em 0 .5em}
 .prose h3{font-size:1.3rem;margin:1.8em 0 .4em;font-style:italic}
 .prose[data-md]>p:first-of-type .lede-caps{font-variant-caps:all-small-caps;letter-spacing:.02em}
-.prose[data-md]>p:first-of-type::first-letter{float:left;font-family:"Cinzel",var(--serif);font-weight:900;font-size:5.2em;line-height:.8;letter-spacing:normal;color:var(--yel);margin:.04em .1em 0 0}
+.prose[data-md]>p:first-of-type::first-letter{float:left;font-family:"Cinzel",var(--serif);font-weight:700;font-size:4.2em;line-height:.82;letter-spacing:normal;color:var(--yel);margin:.06em .12em 0 0}
 .prose ul,.prose ol{padding-left:1.4em;margin:0 0 1.1em}
 .prose li{margin:.2em 0}
 .prose blockquote{position:relative;margin:1.7em 0 1.7em 1.9rem;padding:0 0 0 1.4rem;border-left:1px solid var(--yel);color:var(--ink2);font-size:1.04em;line-height:1.65}
