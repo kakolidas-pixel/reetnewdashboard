@@ -122,7 +122,7 @@ async function writing(_, q) {
   const [W0, P] = await Promise.all([data.posts(), data.projects()]);
   const W = W0;
   const f = q.get("project") || "all";
-  const list = W.filter(w => f === "all" || (f === "none" ? !w.projectId : w.projectId === f));
+  const list = W.filter(w => f === "all" ? true : f === "none" ? !w.projectId : f === "updates" ? w.type === "update" : w.projectId === f);
   const cur = k => f === k ? ' aria-current="true"' : "";
   const used = P.filter(p => W.some(w => w.projectId === p.id));
   return {
@@ -130,6 +130,7 @@ async function writing(_, q) {
     html: `<h1 class="page-title">Writing</h1><p class="page-sub">Everything I've written lately, newest first.</p>
       <nav class="filters" aria-label="Filter writing">
         <a href="#/writing"${cur("all")}>All</a><a href="#/writing?project=none"${cur("none")}>Standalone</a>
+        <a href="#/writing?project=updates"${cur("updates")}>Updates</a>
         ${used.map(p => `<a href="#/writing?project=${esc(p.id)}"${cur(p.id)}>${esc(p.title)}</a>`).join("")}
       </nav>
       ${list.length ? list.map(w => postRow(w, P)).join("") : `<p class="empty">Nothing here yet.</p>`}`
