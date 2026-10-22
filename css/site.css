@@ -24,7 +24,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 
 /* layout column */
 .top,main,.foot{width:min(var(--col),calc(100% - 2.5rem));margin-inline:auto}
-main{flex:1;padding-bottom:5rem;outline:none}
+main{flex:1;padding-bottom:5rem;outline:none;position:relative}
 
 .top{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap;padding:1.5rem 0 1.1rem;border-bottom:1px solid var(--rule)}
 .wordmark{font-size:1.2rem;font-weight:500;text-decoration:none;letter-spacing:.01em}
@@ -130,6 +130,34 @@ img:hover,a:hover img,figure:hover img,.entry:hover img{filter:none}
 .upd-sources{margin-top:.9rem}
 .upd-sources .label{margin:0 0 .3rem;font-style:italic;color:var(--ink3);font-size:.85rem}
 .upd-sources .sources{font-size:.92rem;padding-left:1.3rem}
+.inline-note{margin-top:.9rem}
+.inline-note .label{margin:0 0 .3rem;font-style:italic;color:var(--ink3);font-size:.85rem}
+.inline-note p:last-child{margin:0;color:var(--ink2);font-style:italic;font-size:.92rem}
+
+/* margin notes: disclaimer + collapsed-by-default bibliography. In-flow block by default;
+   becomes a true right-margin aside once the viewport is wide enough to fit one without
+   crowding the text column (see the @media rule further down). */
+.margin-notes{margin:1.8rem 0 2.2rem}
+.mn-box{margin-bottom:1rem;padding:.8rem .9rem;background:var(--bg2);border:1px dashed var(--rule)}
+.mn-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
+.mn-head .stripes{flex:0 0 1.6rem;height:.5rem;min-width:0}
+.mn-label{font-family:var(--type);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--yel)}
+.mn-box p{margin:0;color:var(--ink2);font-style:italic;font-size:.9rem;line-height:1.5}
+.mn-box.biblio{padding:.8rem .9rem .9rem}
+.mn-box.biblio summary{cursor:pointer;list-style:none}
+.mn-box.biblio summary::-webkit-details-marker{display:none}
+.mn-box.biblio summary .mn-head{margin-bottom:0}
+.mn-box.biblio summary .mn-label::after{content:" +";color:var(--ink3)}
+.mn-box.biblio[open] summary .mn-label::after{content:" \2212"}
+.mn-box.biblio[open] summary .mn-head{margin-bottom:.5rem}
+.mn-box.biblio .sources{font-size:.85rem;max-width:none}
+@media (min-width:1400px){
+  /* Width is computed from actual available space (viewport minus the fixed 874px main
+     column, halved, minus the gap) rather than a flat rem guess -- a fixed width overflowed
+     past the right edge of the screen at common laptop widths like 1440px. Verified at the
+     1400px threshold and at 1440px that this no longer causes horizontal overflow. */
+  .margin-notes{position:absolute;left:100%;top:7rem;margin-left:1.5rem;width:calc((100vw - 874px)/2 - 1.5rem - 1.2rem);max-width:15rem}
+}
 
 /* writing list */
 .filters{display:flex;flex-wrap:wrap;gap:.3rem 1.3rem;margin:0 0 1.6rem}

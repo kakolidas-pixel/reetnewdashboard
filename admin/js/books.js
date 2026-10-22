@@ -9,7 +9,7 @@ const STATUSES = ["Want to read", "Reading", "Read"];
 const stars = n => "★".repeat(n) + "☆".repeat(5 - n);
 
 function bookForm(entry, done) {
-  const e = { title: "", author: "", status: "Reading", rating: 0, date: "", review: "", published: true, ...entry };
+  const e = { title: "", author: "", status: "Reading", rating: 0, date: "", review: "", disclaimer: "", published: true, ...entry };
   const text = (key, o = {}) => { const el = h("input", { type: o.type || "text", value: e[key] || "", placeholder: o.ph || "" }); el.addEventListener("input", () => e[key] = el.value); return el; };
   const statusSel = h("select", {}, STATUSES.map(v => h("option", { value: v }, v)));
   statusSel.value = e.status; statusSel.addEventListener("change", () => e.status = statusSel.value);
@@ -22,6 +22,7 @@ function bookForm(entry, done) {
     h("div", { class: "two" }, field("Status", statusSel), field("Rating", ratingSel)),
     field("Date finished", text("date", { type: "date" }), "Leave empty if you haven't finished it yet. Used to group the list by year."),
     field("Review", review.el, "Optional. Markdown works here, same as writing."),
+    field("Disclaimer", text("disclaimer", { ph: "Optional, e.g. an AI-use note or other disclosure." })),
     h("div", { class: "actions" },
       h("button", { class: "btn ghost", type: "button", onclick: () => close() }, "Cancel"),
       h("button", { class: "btn", type: "button", onclick: async () => {

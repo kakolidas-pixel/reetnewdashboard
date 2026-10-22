@@ -93,7 +93,21 @@ const sourcesList = sources => {
   const s = (sources || []).filter(x => (x.citation || "").trim());
   return s.length ? `<ol class="sources">${s.map(x => `<li>${inline(x.citation)}${x.url ? ` <a href="${esc(x.url)}">Link</a>` : ""}</li>`).join("")}</ol>` : "";
 };
-const sourcesSection = sources => sources.length ? `<h2 class="sec">Sources</h2>${sourcesList(sources)}` : "";
+const mnHead = label => `<span class="mn-head"><span class="stripes"></span><span class="mn-label">${label}</span></span>`;
+const disclaimerBox = text => (text || "").trim()
+  ? `<div class="mn-box disclaimer">${mnHead("Note")}<p>${inline(text)}</p></div>` : "";
+const biblioBox = sources => {
+  const list = sourcesList(sources);
+  return list ? `<details class="mn-box biblio"><summary>${mnHead("Sources")}</summary>${list}</details>` : "";
+};
+// A right-margin aside holding the disclaimer (if any) above a collapsed-by-default
+// bibliography (if any). Falls back to a normal in-flow block on narrower screens --
+// true floating margin notes only have room on wide viewports (see the @media rule
+// on .margin-notes in site.css).
+const marginNotes = (disclaimer, sources) => {
+  const d = disclaimerBox(disclaimer), b = biblioBox(sources);
+  return (d || b) ? `<aside class="margin-notes">${d}${b}</aside>` : "";
+};
 
 async function project([, slug]) {
   const [P, W] = await Promise.all([data.projects(), data.posts()]);
@@ -106,11 +120,11 @@ async function project([, slug]) {
     title: p.title,
     html: `<h1 class="page-title">${esc(p.title)}</h1><p class="meta">${esc(statusLine(p))}</p>
       ${tagLine(p.tags)}
+      ${marginNotes(p.disclaimer, sources)}
       ${p.cover ? `<figure class="hero-img"><img src="${esc(p.cover)}" alt=""></figure>` : ""}
       <div class="prose" data-md>${md(p.body)}</div>
-      ${updates.length ? `<h2 class="sec">Updates</h2>${updates.map(u => `<article class="upd"><time datetime="${u.date}">${D(u.date, { day: "numeric", month: "short", year: "numeric" })}</time><div>${u.title ? `<h3>${esc(u.title)}</h3>` : ""}<div class="prose">${md(u.body)}</div>${(u.sources || []).length ? `<div class="upd-sources"><p class="label">Sources</p>${sourcesList(u.sources)}</div>` : ""}</div></article>`).join("")}` : ""}
-      ${related.length ? `<h2 class="sec related">Writing on this project</h2>${related.map(w => postRow(w, [])).join("")}` : ""}
-      ${sourcesSection(sources)}`
+      ${updates.length ? `<h2 class="sec">Updates</h2>${updates.map(u => `<article class="upd"><time datetime="${u.date}">${D(u.date, { day: "numeric", month: "short", year: "numeric" })}</time><div>${u.title ? `<h3>${esc(u.title)}</h3>` : ""}<div class="prose">${md(u.body)}</div>${(u.disclaimer || "").trim() ? `<div class="inline-note"><p class="label">Note</p><p>${inline(u.disclaimer)}</p></div>` : ""}${(u.sources || []).length ? `<div class="upd-sources"><p class="label">Sources</p>${sourcesList(u.sources)}</div>` : ""}</div></article>`).join("")}` : ""}
+      ${related.length ? `<h2 class="sec related">Writing on this project</h2>${related.map(w => postRow(w, [])).join("")}` : ""}`
   };
 }
 
@@ -161,9 +175,9 @@ async function post([, slug]) {
     html: `<h1 class="page-title">${esc(w.title)}</h1>
       <p class="meta">${D(w.date)}, ${readingTime(w.body)} min read${proj ? `. Part of <a href="/projects/${esc(proj.slug)}">${esc(proj.title)}</a>` : ""}</p>
       ${tagLine(w.tags)}
+      ${marginNotes(w.disclaimer, sources)}
       ${w.cover ? `<figure class="hero-img"><img src="${esc(w.cover)}" alt=""></figure>` : ""}
-      <div class="prose" data-md>${md(w.body)}</div>
-      ${sourcesSection(sources)}`
+      <div class="prose" data-md>${md(w.body)}</div>`
   };
 }
 
@@ -187,7 +201,7 @@ async function awards() {
 }
 
 const bookStars = n => n ? "&#9733;".repeat(n) + "&#9734;".repeat(5 - n) : "";
-const bookRow = b => `<li><span class="t">${esc(b.title)}</span>${b.author ? `<span class="by">by ${esc(b.author)}</span>` : ""}${bookStars(b.rating) ? `<span class="stars">${bookStars(b.rating)}</span>` : ""}${b.status !== "Read" ? `<span class="kind">${esc(b.status)}</span>` : ""}${b.review ? `<div class="prose review">${md(b.review)}</div>` : ""}</li>`;
+const bookRow = b => `<li><span class="t">${esc(b.title)}</span>${b.author ? `<span class="by">by ${esc(b.author)}</span>` : ""}${bookStars(b.rating) ? `<span class="stars">${bookStars(b.rating)}</span>` : ""}${b.status !== "Read" ? `<span class="kind">${esc(b.status)}</span>` : ""}${b.review ? `<div class="prose review">${md(b.review)}</div>` : ""}${(b.disclaimer || "").trim() ? `<div class="inline-note"><p class="label">Note</p><p>${inline(b.disclaimer)}</p></div>` : ""}</li>`;
 
 async function books() {
   const B = await data.books();

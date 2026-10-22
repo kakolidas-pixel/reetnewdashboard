@@ -97,8 +97,8 @@ export async function projects(stage) {
 
 /* ---------- document editor (posts and projects) ---------- */
 const CFG = {
-  posts: { col: "posts", noun: "post", route: "writing", site: "writing", blank: () => ({ title: "", slug: "", body: "", excerpt: "", date: iso(new Date()), projectId: "", tags: [], cover: "", sources: [], published: false }) },
-  projects: { col: "projects", noun: "project", route: "projects", site: "projects", blank: () => ({ title: "", slug: "", body: "", summary: "", status: "Ongoing", startDate: iso(new Date()), endDate: "", cover: "", tags: [], featured: false, order: 10, sources: [], published: false }) }
+  posts: { col: "posts", noun: "post", route: "writing", site: "writing", blank: () => ({ title: "", slug: "", body: "", excerpt: "", date: iso(new Date()), projectId: "", tags: [], cover: "", sources: [], disclaimer: "", published: false }) },
+  projects: { col: "projects", noun: "project", route: "projects", site: "projects", blank: () => ({ title: "", slug: "", body: "", summary: "", status: "Ongoing", startDate: iso(new Date()), endDate: "", cover: "", tags: [], featured: false, order: 10, sources: [], disclaimer: "", published: false }) }
 };
 
 export const editor = kind => async (stage, id) => {
@@ -200,7 +200,8 @@ export const editor = kind => async (stage, id) => {
            field("Summary", bindInput("summary", { area: true, ph: "One or two sentences shown on cards and previews." })),
            field("Order on the Projects page", bindInput("order", { type: "number" }), "Lower numbers come first."),
            check("featured", "Feature this project on the home page")]),
-      field("Tags", tagsEl)),
+      field("Tags", tagsEl),
+      field("Disclaimer", bindInput("disclaimer", { area: true, ph: "Optional, e.g. an AI-use note or other disclosure." }), "Shown in a small note on the public page, above the sources.")),
     panel("Cover image", imageField({ value: doc.cover, onChange: v => { doc.cover = v; changed(); } })),
     !isNew && panel("Remove", h("button", { class: "btn danger", type: "button", onclick: async () => {
       if (!(await confirmBox(`Delete this ${cfg.noun}? This can't be undone.`, "Delete"))) return;
