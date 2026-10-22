@@ -170,6 +170,31 @@ async function post([, slug]) {
   if (!w) return notFound();
   const proj = P.find(p => p.id === w.projectId);
   const sources = (w.sources || []).filter(s => (s.citation || "").trim());
+
+  // Articles only (no updates), already newest-first from data.posts(). Prev/next give a
+  // chronological thread through everything; tag overlap surfaces genuinely related reading
+  // when there is any, rather than a generic "recommended" grid with nothing to recommend.
+  const articles = W.filter(x => x.type !== "update");
+  const idx = articles.findIndex(x => x.slug === slug);
+  const newer = idx > 0 ? articles[idx - 1] : null;
+  const older = idx >= 0 && idx < articles.length - 1 ? articles[idx + 1] : null;
+  const tags = w.tags || [];
+  const related = tags.length ? articles
+    .filter(x => x.slug !== slug)
+    .map(x => ({ post: x, shared: (x.tags || []).filter(t => tags.includes(t)) }))
+    .filter(x => x.shared.length)
+    .sort((a, b) => b.shared.length - a.shared.length || (b.post.date || "").localeCompare(a.post.date || ""))
+    .slice(0, 3) : [];
+
+  const postNav = (older || newer) ? `<nav class="post-nav">
+      ${older ? `<a class="prev" href="/writing/${esc(older.slug)}">&larr; ${esc(older.title)}</a>` : "<span></span>"}
+      ${newer ? `<a class="next" href="/writing/${esc(newer.slug)}">${esc(newer.title)} &rarr;</a>` : ""}
+    </nav>` : "";
+  const furtherReading = related.length
+    ? `<h2 class="sec">Further reading</h2><ul class="related-list">${related.map(r =>
+        `<li><a href="/writing/${esc(r.post.slug)}">${esc(r.post.title)}</a><span class="via">tagged ${esc(r.shared[0])}</span></li>`).join("")}</ul>`
+    : "";
+
   return {
     title: w.title,
     html: `<h1 class="page-title">${esc(w.title)}</h1>
@@ -177,7 +202,9 @@ async function post([, slug]) {
       ${tagLine(w.tags)}
       ${marginNotes(w.disclaimer, sources)}
       ${w.cover ? `<figure class="hero-img"><img src="${esc(w.cover)}" alt=""></figure>` : ""}
-      <div class="prose" data-md>${md(w.body)}</div>`
+      <div class="prose" data-md>${md(w.body)}</div>
+      ${postNav}
+      ${furtherReading}`
   };
 }
 
