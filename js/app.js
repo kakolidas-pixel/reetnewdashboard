@@ -139,7 +139,7 @@ const postRow = (w, P) => {
   return `<article class="post"><time datetime="${w.date}">${D(w.date, { day: "numeric", month: "short", year: "numeric" })}</time>
     <div><h3><a href="${href}">${title}</a></h3>
     ${proj ? `<p class="from">${isUpd ? "Update &middot; " : ""}<a href="/projects/${esc(proj.slug)}">${esc(proj.title)}</a></p>` : ""}
-    <p>${esc(w.excerpt || excerpt(w.body, 170))}</p>${tagLine(w.tags)}</div></article>`;
+    <div class="excerpt-wrap"><p class="excerpt clamped">${esc(w.excerpt || excerpt(w.body, 500))}</p><button type="button" class="read-more">Read more</button></div>${tagLine(w.tags)}</div></article>`;
 };
 
 async function writing(_, q) {
@@ -171,28 +171,20 @@ async function post([, slug]) {
   const proj = P.find(p => p.id === w.projectId);
   const sources = (w.sources || []).filter(s => (s.citation || "").trim());
 
-  // Articles only (no updates), already newest-first from data.posts(). Prev/next give a
-  // chronological thread through everything; tag overlap surfaces genuinely related reading
-  // when there is any, rather than a generic "recommended" grid with nothing to recommend.
+  // Articles only (no updates), already newest-first from data.posts(). Tag overlap surfaces
+  // genuinely related reading when there is any, rather than a generic "recommended" grid
+  // with nothing to recommend.
   const articles = W.filter(x => x.type !== "update");
-  const idx = articles.findIndex(x => x.slug === slug);
-  const newer = idx > 0 ? articles[idx - 1] : null;
-  const older = idx >= 0 && idx < articles.length - 1 ? articles[idx + 1] : null;
   const tags = w.tags || [];
   const related = tags.length ? articles
     .filter(x => x.slug !== slug)
     .map(x => ({ post: x, shared: (x.tags || []).filter(t => tags.includes(t)) }))
     .filter(x => x.shared.length)
     .sort((a, b) => b.shared.length - a.shared.length || (b.post.date || "").localeCompare(a.post.date || ""))
-    .slice(0, 3) : [];
-
-  const postNav = (older || newer) ? `<nav class="post-nav">
-      ${older ? `<a class="prev" href="/writing/${esc(older.slug)}">&larr; ${esc(older.title)}</a>` : "<span></span>"}
-      ${newer ? `<a class="next" href="/writing/${esc(newer.slug)}">${esc(newer.title)} &rarr;</a>` : ""}
-    </nav>` : "";
+    .slice(0, 6) : [];
   const furtherReading = related.length
-    ? `<h2 class="sec">Further reading</h2><ul class="related-list">${related.map(r =>
-        `<li><a href="/writing/${esc(r.post.slug)}">${esc(r.post.title)}</a><span class="via">tagged ${esc(r.shared[0])}</span></li>`).join("")}</ul>`
+    ? `<h2 class="similar-title">Similar writing</h2><ul class="related-list">${related.map(r =>
+        `<li><a href="/writing/${esc(r.post.slug)}">${esc(r.post.title)}</a><span class="via">${esc(r.shared[0])}</span></li>`).join("")}</ul>`
     : "";
 
   return {
@@ -203,7 +195,6 @@ async function post([, slug]) {
       ${marginNotes(w.disclaimer, sources)}
       ${w.cover ? `<figure class="hero-img"><img src="${esc(w.cover)}" alt=""></figure>` : ""}
       <div class="prose" data-md>${md(w.body)}</div>
-      ${postNav}
       ${furtherReading}`
   };
 }
@@ -426,8 +417,24 @@ let ledeResizeTimer;
 window.addEventListener("resize", () => { clearTimeout(ledeResizeTimer); ledeResizeTimer = setTimeout(() => capLede(view), 150); });
 document.fonts?.ready?.then(() => capLede(view));
 
+// Clamp a writing-list excerpt to a few lines with a "Read more" toggle, instead of a hard
+// character cutoff. Removes the button entirely when the text already fits unclamped.
+function wireReadMore(root) {
+  root.querySelectorAll(".excerpt-wrap").forEach(wrap => {
+    const p = wrap.querySelector(".excerpt");
+    const btn = wrap.querySelector(".read-more");
+    if (!p || !btn) return;
+    if (p.scrollHeight <= p.clientHeight + 1) { btn.remove(); return; }
+    btn.addEventListener("click", () => {
+      const clamped = p.classList.toggle("clamped");
+      btn.textContent = clamped ? "Read more" : "Show less";
+    });
+  });
+}
+
 function decorate(root) {
   capLede(root);
+  wireReadMore(root);
   root.querySelectorAll("a[href]").forEach(a => {
     let href = a.getAttribute("href");
     // Authors can write /projects/my-project in markdown; on this site that means #/projects/my-project.

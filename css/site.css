@@ -167,6 +167,11 @@ img:hover,a:hover img,figure:hover img,.entry:hover img{filter:none}
 .post h3{font-size:1.4rem;line-height:1.25}
 .post .from{font-style:italic;color:var(--ink3);font-size:.95rem;margin:.1rem 0 .3rem}
 .post p{margin:.2rem 0 0;color:var(--ink2);max-width:33rem;font-size:1rem;line-height:1.5}
+.excerpt.clamped{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.read-more{display:block;background:none;border:none;padding:0;margin:.5rem 0 0;font:inherit;font-style:italic;
+  font-size:.92rem;color:var(--ink);text-decoration:underline;text-decoration-color:var(--yel);
+  text-decoration-thickness:1px;text-underline-offset:.18em;cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.read-more:hover{background:var(--yel);color:var(--on-yel);text-decoration-color:transparent}
 .tags{font-size:.85rem;color:var(--ink3);font-style:italic;margin:.4rem 0 0}
 .post .tags{margin-top:.3rem}
 
@@ -175,11 +180,15 @@ img:hover,a:hover img,figure:hover img,.entry:hover img{filter:none}
 .hero-img{margin:0 0 2.4rem}
 .hero-img img{width:100%;max-height:26rem;object-fit:cover}
 .related{margin-top:4rem}
-.post-nav{display:flex;justify-content:space-between;gap:1.5rem;margin-top:4rem;padding-top:1.3rem;border-top:1px solid var(--rule)}
-.post-nav a{font-style:italic;max-width:48%}
-.related-list{list-style:none;margin:1rem 0 0;padding:0}
-.related-list li{padding:.6rem 0;border-top:1px solid var(--rule)}
-.related-list .via{font-style:italic;color:var(--ink3);font-size:.9rem;margin-left:.6em}
+/* "Similar writing" -- same spirit as gwern's Similar Links: a big small-caps title and a
+   star-bulleted list, rather than card/thumbnail "recommended posts" grids. */
+.similar-title{font-variant-caps:all-small-caps;letter-spacing:.07em;font-weight:600;font-size:2rem;
+  margin:4.4rem 0 1.3rem;padding-bottom:.6rem;border-bottom:1px solid var(--rule)}
+.related-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));
+  gap:.1rem 2.2rem}
+.related-list li{padding:.4rem 0;display:flex;align-items:baseline;gap:.5em}
+.related-list li::before{content:"\2726";color:var(--yel);font-size:.8em;flex:none}
+.related-list .via{font-style:italic;color:var(--ink3);font-size:.85rem;white-space:nowrap}
 .about-grid{display:grid;grid-template-columns:1fr 11rem;gap:2.4rem}
 .about-grid .portrait img{width:100%;aspect-ratio:3/4;object-fit:cover}
 .links{list-style:none;padding:0;margin:2rem 0 0}.links li{margin:.25rem 0}
