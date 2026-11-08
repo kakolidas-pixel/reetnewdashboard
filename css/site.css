@@ -201,6 +201,10 @@ img:hover,a:hover img,figure:hover img,.entry:hover img{filter:none}
 /* article / project header */
 .meta{color:var(--ink3);font-style:italic;margin:0 0 2rem}
 .hero-img{margin:0 0 2.4rem}
+/* The tags line's own line-height leaves visible air below the glyphs even with 0 margin, so
+   the image reads as floating further from the tags than it actually is. Pull it up to close
+   that gap. ~ (not +) because an optional margin-notes aside can sit between them in markup. */
+.tags ~ .hero-img{margin-top:-.9rem}
 .hero-img img{width:100%;max-height:26rem;object-fit:cover}
 .related{margin-top:4rem}
 /* "Similar writing" -- same spirit as gwern's Similar Links: a big small-caps title and a
@@ -248,12 +252,8 @@ form.contact input:focus,form.contact textarea:focus{border-color:var(--accent)}
 .win-foot{padding:.1rem 1rem .8rem;display:flex;justify-content:flex-end}
 .win-go{background:var(--accent);color:var(--on-accent);text-decoration:none;padding:.15rem .8rem;font-size:.95rem}
 .win-foot{gap:.6rem}
-.win-go.alt{font:inherit;font-size:.95rem;background:transparent;color:var(--accent);border:1px solid var(--accent);cursor:pointer}
-.win-go.alt:hover{background:var(--accent);color:var(--on-accent)}
 .win-body .shot{height:11rem;object-position:top}
-.win.wide{width:min(46rem,calc(100vw - 1.5rem))}
-.win.wide .win-body{max-height:none}
-.win-body iframe.live{width:100%;height:min(58vh,26rem);border:0;background:#fff;display:block}
+.win-body iframe.live{width:100%;height:min(50vh,22rem);border:0;background:#fff;display:block}
 .win-go:hover{background:var(--ink);color:var(--on-accent)}
 @media (max-width:640px){
   .top nav{flex-wrap:wrap;gap:.5rem 1.1rem}
@@ -277,7 +277,12 @@ form.contact input:focus,form.contact textarea:focus{border-color:var(--accent)}
 :root[data-layout="paper"] .top{flex-direction:column;align-items:center;text-align:center;gap:.9rem;
   border-top:3px double var(--ink);border-bottom:3px double var(--rule);padding:2rem 0 1.3rem}
 :root[data-layout="paper"] .wordmark{font-size:clamp(2.1rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
-:root[data-layout="paper"] .top-right{flex-direction:column;align-items:center;gap:.8rem}
+/* Grid, not flex-direction:column: .top-right holds nav and the two toggle buttons as plain
+   siblings, and a column flex would stack all three individually (nav, then each button on its
+   own row). Grid lets nav span both columns on its own row while the two buttons share the row
+   below it, side by side, regardless of source order. */
+:root[data-layout="paper"] .top-right{display:grid;grid-template-columns:repeat(2,auto);justify-content:center;column-gap:.6rem;row-gap:.8rem;width:100%}
+:root[data-layout="paper"] .top-right nav{grid-column:1/-1;justify-content:center;flex-wrap:wrap}
 :root[data-layout="paper"] .top nav{justify-content:center;flex-wrap:wrap;gap:.2rem 1.5rem;
   font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:1.05rem;
   border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:.5rem 0;width:100%}

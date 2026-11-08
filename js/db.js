@@ -68,18 +68,30 @@ export const timeline = () => list("timeline", false);
 export const books = () => list("books", true);
 
 // A link's saved preview (captured in Desk). Returns null if none has been saved.
+//
+// Same saved-copy-first pattern as cached() above, not just an in-memory Map: without a disk
+// copy, every preview was refetched from Firestore on every fresh page load (a new tab, a
+// reload), which only ever looked fast on a second hover within the same still-open tab. Wrapped
+// as {v: rec} so a genuinely-cached "no preview saved for this link" (rec === null) is still
+// distinguishable from "not cached yet" (read() returning null either way).
 const prevMem = new Map();
 export async function preview(url) {
   if (prevMem.has(url)) return prevMem.get(url);
-  let rec = null;
-  if (!isConfigured) rec = demo.previews?.[url] || null;
-  else {
+  const key = "prev:" + url;
+  const stored = read(key);
+  const fetcher = async () => {
+    if (!isConfigured) return demo.previews?.[url] || null;
     const { F, db } = await boot();
     const d = await F.getDoc(F.doc(db, "settings", await previewId(url)));
-    rec = d.exists() ? d.data() : null;
-  }
-  prevMem.set(url, rec);
-  return rec;
+    return d.exists() ? d.data() : null;
+  };
+  const fresh = fetcher().then(rec => {
+    write(key, { v: rec });
+    prevMem.set(url, Promise.resolve(rec));
+    return rec;
+  }).catch(() => { if (!stored) prevMem.delete(url); return stored ? stored.v : null; });
+  prevMem.set(url, stored ? Promise.resolve(stored.v) : fresh);
+  return prevMem.get(url);
 }
 
 export async function sendMessage({ name, email, message }) {

@@ -87,29 +87,32 @@ function open(a, pin) {
   const fill = info => {
     const body = el.querySelector(".win-body"), foot = el.querySelector(".win-foot");
     el.querySelector(".win-title").textContent = info.title || "Preview";
-    const og = info.image ? `<img src="${esc(info.image)}" alt="">` : "";
-    body.innerHTML =
-      (info.shot ? `<div class="shot-wrap" hidden><img class="shot" alt=""></div>` : og) +
-      (info.heading ? `<h4>${esc(info.heading)}</h4>` : "") +
-      (info.meta ? `<p class="m">${esc(info.meta)}</p>` : "") +
-      (info.text ? `<p>${esc(info.text)}</p>` : "") +
-      (info.url ? `<p class="url">${esc(info.url)}</p>` : "");
-    // A picture of the page. It appears when it has loaded; if it can't, fall back to the site's own image.
-    if (info.shot) {
-      const img = body.querySelector(".shot"), wrap = img.parentElement;
-      img.addEventListener("load", () => { wrap.hidden = false; position(el, a); });
-      img.addEventListener("error", () => { wrap.remove(); if (og) body.insertAdjacentHTML("afterbegin", og); position(el, a); });
-      img.src = info.shot;
+    // Live view is the default for an external https link, not a click-gated extra: loads the
+    // real page right in the window, same size as any other preview (the iframe just scrolls
+    // inside win-body if it's taller). There's no reliable way to detect a site that blocks
+    // being framed (X-Frame-Options failures are invisible to this page, cross-origin), so the
+    // "if nothing appears" fallback stays visible rather than only showing up after a failure.
+    if (info.external && /^https:\/\//.test(info.url)) {
+      body.innerHTML = `<iframe class="live" src="${esc(info.url)}" sandbox="allow-scripts allow-same-origin" referrerpolicy="no-referrer" title="Live preview of ${esc(info.title)}"></iframe><p class="m" style="margin:.5rem 0 0">If nothing appears above, this site doesn't allow previews -- use Visit site below.</p>`;
+    } else {
+      const og = info.image ? `<img src="${esc(info.image)}" alt="">` : "";
+      body.innerHTML =
+        (info.shot ? `<div class="shot-wrap" hidden><img class="shot" alt=""></div>` : og) +
+        (info.heading ? `<h4>${esc(info.heading)}</h4>` : "") +
+        (info.meta ? `<p class="m">${esc(info.meta)}</p>` : "") +
+        (info.text ? `<p>${esc(info.text)}</p>` : "") +
+        (info.url ? `<p class="url">${esc(info.url)}</p>` : "");
+      // A picture of the page. It appears when it has loaded; if it can't, fall back to the site's own image.
+      if (info.shot) {
+        const img = body.querySelector(".shot"), wrap = img.parentElement;
+        img.addEventListener("load", () => { wrap.hidden = false; position(el, a); });
+        img.addEventListener("error", () => { wrap.remove(); if (og) body.insertAdjacentHTML("afterbegin", og); position(el, a); });
+        img.src = info.shot;
+      }
     }
     foot.innerHTML = info.external
-      ? `${/^https:\/\//.test(info.url) ? `<button class="win-go alt" type="button">Live view</button>` : ""}<a class="win-go" href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">Visit site</a>`
+      ? `<a class="win-go" href="${esc(info.url)}" target="_blank" rel="noopener noreferrer">Visit site</a>`
       : `<a class="win-go" href="${esc(info.href)}">Open page</a>`;
-    // Live view: load the real page inside the window. Only on request, and only for sites that allow being embedded.
-    foot.querySelector(".alt")?.addEventListener("click", e => {
-      o.pinned = true; el.classList.add("wide");
-      body.innerHTML = `<iframe class="live" src="${esc(info.url)}" sandbox="allow-scripts allow-same-origin" referrerpolicy="no-referrer" title="Live preview of ${esc(info.title)}"></iframe><p class="m" style="margin:.5rem 0 0">If nothing appears, this site doesn't allow previews. Use Visit site.</p>`;
-      e.target.remove(); position(el, a);
-    });
     position(el, a);
   };
   Promise.resolve(resolver(k)).then(fill).catch(() => fill({ title: "Unavailable", text: "A preview could not be loaded.", href: k }));
