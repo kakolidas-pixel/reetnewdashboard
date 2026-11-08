@@ -14,21 +14,19 @@ IMPORTANT: if you are adding this to a site that already works, do NOT upload th
 settings with placeholders. Upload everything else and leave your existing two config files alone.
 
 
-One GitHub Pages site with two parts:
+One site, hosted on Cloudflare Pages, with two parts:
 
 - **The website** is `index.html` in this folder (home with timeline, projects, writing, about, contact).
 - **Desk**, the private dashboard, lives in the `admin/` folder. It is a page of the same site, at `.../admin/`.
 
-All content is stored in Firebase and edited from Desk. Nothing is hard-coded. GitHub only hosts the files.
+All content is stored in Firebase and edited from Desk. Nothing is hard-coded. Cloudflare only hosts the files.
 
 ## Addresses
 
-If your GitHub username is `aryamann` and the repository is called `site`:
+- Website: `https://aryamannreet.in/`
+- Dashboard: `https://aryamannreet.in/admin/`
 
-- Website: `https://aryamann.github.io/site/`
-- Dashboard: `https://aryamann.github.io/site/admin/`
-
-Pages inside the website look like `.../site/#/projects/my-project`. The `#` is deliberate: it makes every page work on GitHub Pages with no server settings.
+Pages inside the website look like `.../writing/my-post` -- real addresses, not `#/...` fragments, so individual pages can actually be found by search engines. Cloudflare Pages makes this work with no server of your own, via two files at the root of the project: `_redirects` (sends any address that isn't a real file to `index.html`, which then renders the right page) and `_headers` (security headers, including the Content-Security-Policy). Don't delete either file.
 
 ## Preview the design on your computer (no Firebase needed)
 
@@ -49,7 +47,8 @@ Firebase and GitHub change their screens and pricing over time, so check each st
 2. Paste that config into BOTH `js/firebase-config.js` and `admin/js/firebase-config.js`.
    (These values are not secrets. The security rules below are what protect the site.)
 3. **Authentication:** turn on the Email/Password method and add ONE user, the owner, with a long unique password.
-   Copy that user's **User UID**. Under Authentication > Settings > Authorized domains, add `YOURNAME.github.io`.
+   Copy that user's **User UID**. Under Authentication > Settings > Authorized domains, add `aryamannreet.in`
+   (and `*.pages.dev` too, if you still use Cloudflare's own preview address for testing).
    If the console offers it, turn off new sign-ups and consider multi-factor sign-in.
 4. **Firestore Database:** create one (production mode, region near you, such as Mumbai).
 5. **Storage:** enable it for images. Firebase may require its pay-as-you-go plan for Storage. Check current pricing
@@ -57,12 +56,11 @@ Firebase and GitHub change their screens and pricing over time, so check each st
 6. **Rules:** open `firebase-rules/firestore.rules`, replace `REPLACE_WITH_OWNER_UID` with the UID, and paste the whole file into
    Firestore > Rules, then Publish. Do the same with `firebase-rules/storage.rules` in Storage > Rules.
 
-### 2. GitHub
-1. Create a new repository. GitHub Pages on a free account generally needs a **public** repository. Check GitHub's current rules.
-   Public is fine here: the files contain no passwords, and the rules protect the data.
-2. Upload everything in this folder, keeping the folders. The easiest way is GitHub Desktop (desktop.github.com).
-3. In the repository, go to Settings > Pages. Under "Build and deployment" choose **Deploy from a branch**, branch **main**, folder **/ (root)**.
-4. Wait a minute or two. GitHub shows the address at the top of the Pages screen.
+### 2. Cloudflare Pages
+1. In the Cloudflare dashboard, create a Pages project connected to this repository (or upload the folder directly).
+   No build command or framework preset is needed -- this is a plain static site; leave the build output directory as the project root.
+2. Under the project's **Custom domains**, add `aryamannreet.in` and point its DNS at Cloudflare as instructed there.
+3. Wait for the first deploy to finish, then open the domain to confirm the site loads.
 
 ### 3. First sign-in
 Open the dashboard address, sign in with the owner account, and go to **Pages** to write the intro, about text and tagline.
@@ -103,5 +101,5 @@ Markdown extras:
 - Have someone experienced review `firebase-rules/` before going live, and test sign-in, publishing, image upload and the contact form
   on the live address.
 - The contact form is open to the public by design (size-limited). If spam appears, add Firebase App Check.
-- You can optionally restrict the Firebase API key to your github.io address in the Google Cloud console.
+- You can optionally restrict the Firebase API key to your aryamannreet.in address in the Google Cloud console.
 - The site shows a minor's name, and optionally school. Decide as a family what to publish; the school line is a switch in Pages.

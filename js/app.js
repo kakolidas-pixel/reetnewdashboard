@@ -7,8 +7,9 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const D = (iso, o = { day: "numeric", month: "long", year: "numeric" }) => iso ? new Date(iso + "T00:00:00").toLocaleDateString("en-US", o) : "";
 const MY = { month: "long", year: "numeric" };
 
-// The site's own address, e.g. "/reponame" on a GitHub Pages project site, or "" at a
-// domain root. Derived from where this module itself was loaded from, so it's correct
+// The site's own address below the domain root -- "" when hosted at the root (as on
+// Cloudflare Pages at aryamannreet.in), or e.g. "/reponame" if ever hosted under a
+// subpath. Derived from where this module itself was loaded from, so it's correct
 // wherever the site is hosted without any build step or manual configuration.
 const BASE = new URL("../", import.meta.url).pathname.replace(/\/+$/, "");
 
@@ -486,7 +487,7 @@ async function renderPage(keepScroll = false) {
   view.innerHTML = out.html;
   document.title = out.title ? `${out.title} | ${S.siteTitle}` : S.siteTitle;
   $('meta[name="description"]')?.setAttribute("content", out.description || S.tagline || "");
-  $('link[rel="canonical"]')?.setAttribute("href", BASE + path);
+  $('link[rel="canonical"]')?.setAttribute("href", location.origin + BASE + path);
   decorate(view);
   out.after?.();
   document.querySelectorAll("#nav a").forEach(a => {

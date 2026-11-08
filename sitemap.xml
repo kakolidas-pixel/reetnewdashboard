@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Replace REPLACE_WITH_YOUR_DOMAIN below with your real address (see robots.txt).
-
   This only lists the site's fixed pages. Writing, projects, awards and books live in
   Firestore and are created from Desk, so a static file like this one can't know about them
   in advance -- there's no build step that runs when you publish a post. If deeper indexing
@@ -9,11 +7,11 @@
   Cloud Function on publish) that regenerates this file from the database.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://REPLACE_WITH_YOUR_DOMAIN/</loc></url>
-  <url><loc>https://REPLACE_WITH_YOUR_DOMAIN/about</loc></url>
-  <url><loc>https://REPLACE_WITH_YOUR_DOMAIN/projects</loc></url>
-  <url><loc>https://REPLACE_WITH_YOUR_DOMAIN/writing</loc></url>
-  <url><loc>https://REPLACE_WITH_YOUR_DOMAIN/awards</loc></url>
-  <url><loc>https://REPLACE_WITH_YOUR_DOMAIN/books</loc></url>
-  <url><loc>https://REPLACE_WITH_YOUR_DOMAIN/contact</loc></url>
+  <url><loc>https://aryamannreet.in/</loc></url>
+  <url><loc>https://aryamannreet.in/about</loc></url>
+  <url><loc>https://aryamannreet.in/projects</loc></url>
+  <url><loc>https://aryamannreet.in/writing</loc></url>
+  <url><loc>https://aryamannreet.in/awards</loc></url>
+  <url><loc>https://aryamannreet.in/books</loc></url>
+  <url><loc>https://aryamannreet.in/contact</loc></url>
 </urlset>

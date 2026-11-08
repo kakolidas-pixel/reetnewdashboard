@@ -1,6 +1,4 @@
-# Replace the line below with your real address once the site is live, e.g.
-# https://yourname.github.io/site/sitemap.xml -- crawlers need an absolute URL here.
-Sitemap: https://REPLACE_WITH_YOUR_DOMAIN/sitemap.xml
+Sitemap: https://aryamannreet.in/sitemap.xml
 
 User-agent: *
 Disallow: /admin/
