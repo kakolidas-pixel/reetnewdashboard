@@ -7,6 +7,11 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const D = (iso, o = { day: "numeric", month: "long", year: "numeric" }) => iso ? new Date(iso + "T00:00:00").toLocaleDateString("en-US", o) : "";
 const MY = { month: "long", year: "numeric" };
 
+// The site's own address, e.g. "/reponame" on a GitHub Pages project site, or "" at a
+// domain root. Derived from where this module itself was loaded from, so it's correct
+// wherever the site is hosted without any build step or manual configuration.
+const BASE = new URL("../", import.meta.url).pathname.replace(/\/+$/, "");
+
 let S = {};
 const view = $("#view");
 
@@ -58,6 +63,7 @@ async function home() {
 
   return {
     title: "",
+    description: S.tagline || excerpt(S.intro, 160),
     html: `
       <h1 class="name">${esc(S.siteTitle)}</h1>
       ${S.tagline ? `<p class="tagline">${esc(S.tagline)}</p>` : ""}
@@ -74,6 +80,7 @@ async function about() {
   const links = (S.links || []).length ? `<ul class="links">${S.links.map(l => `<li><a href="${esc(l.url)}">${esc(l.label)}</a></li>`).join("")}</ul>` : "";
   return {
     title: "About",
+    description: excerpt(S.about, 160) || `About ${S.siteTitle}.`,
     html: `<h1 class="page-title">About</h1>
       ${S.showSchool && S.school ? `<p class="page-sub">${esc(S.school)}</p>` : ""}
       <div class="${portrait ? "about-grid" : ""}"><div><div class="prose">${md(S.about) || `<p class="empty">Nothing written yet.</p>`}</div>${links}</div>${portrait}</div>`
@@ -84,6 +91,7 @@ async function projects() {
   const P = await data.projects();
   return {
     title: "Projects",
+    description: "Long-running work, each with its own record.",
     html: `<h1 class="page-title">Projects</h1><p class="page-sub">Long-running work, each with its own record.</p>
       ${P.length ? P.map(projectEntry).join("") : `<p class="empty">No projects published yet.</p>`}`
   };
@@ -118,6 +126,7 @@ async function project([, slug]) {
   const sources = (p.sources || []).filter(s => (s.citation || "").trim());
   return {
     title: p.title,
+    description: p.summary || excerpt(p.body, 160),
     html: `<h1 class="page-title">${esc(p.title)}</h1><p class="meta">${esc(statusLine(p))}</p>
       ${tagLine(p.tags)}
       ${marginNotes(p.disclaimer, sources)}
@@ -129,7 +138,7 @@ async function project([, slug]) {
 }
 
 const tagLine = tags => (tags || []).length
-  ? `<p class="tags">${tags.map(t => `<a href="#/writing?tag=${encodeURIComponent(t)}">${esc(t)}</a>`).join(", ")}</p>` : "";
+  ? `<p class="tags">${tags.map(t => `<a href="/writing?tag=${encodeURIComponent(t)}">${esc(t)}</a>`).join(", ")}</p>` : "";
 
 const postRow = (w, P) => {
   const proj = P.find(p => p.id === w.projectId);
@@ -153,13 +162,14 @@ async function writing(_, q) {
   const used = P.filter(p => W.some(w => w.projectId === p.id));
   return {
     title: "Writing",
+    description: "Everything I've written lately, newest first.",
     html: `<h1 class="page-title">Writing</h1><p class="page-sub">Everything I've written lately, newest first.</p>
       <nav class="filters" aria-label="Filter writing">
-        <a href="#/writing"${cur("all")}>All</a><a href="#/writing?project=none"${cur("none")}>Standalone</a>
-        <a href="#/writing?project=updates"${cur("updates")}>Updates</a>
-        ${used.map(p => `<a href="#/writing?project=${esc(p.id)}"${cur(p.id)}>${esc(p.title)}</a>`).join("")}
+        <a href="/writing"${cur("all")}>All</a><a href="/writing?project=none"${cur("none")}>Standalone</a>
+        <a href="/writing?project=updates"${cur("updates")}>Updates</a>
+        ${used.map(p => `<a href="/writing?project=${esc(p.id)}"${cur(p.id)}>${esc(p.title)}</a>`).join("")}
       </nav>
-      ${tag ? `<p class="page-sub">Tagged &ldquo;${esc(tag)}&rdquo;. <a href="#/writing${f === "all" ? "" : `?project=${esc(f)}`}">Clear tag</a></p>` : ""}
+      ${tag ? `<p class="page-sub">Tagged &ldquo;${esc(tag)}&rdquo;. <a href="/writing${f === "all" ? "" : `?project=${esc(f)}`}">Clear tag</a></p>` : ""}
       ${list.length ? list.map(w => postRow(w, P)).join("") : `<p class="empty">Nothing here yet.</p>`}`
   };
 }
@@ -189,6 +199,7 @@ async function post([, slug]) {
 
   return {
     title: w.title,
+    description: w.excerpt || excerpt(w.body, 160),
     html: `<h1 class="page-title">${esc(w.title)}</h1>
       <p class="meta">${D(w.date)}, ${readingTime(w.body)} min read${proj ? `. Part of <a href="/projects/${esc(proj.slug)}">${esc(proj.title)}</a>` : ""}</p>
       ${tagLine(w.tags)}
@@ -213,6 +224,7 @@ async function awards() {
       </ul></section>`).join("");
   return {
     title: "Awards",
+    description: "Model UN conferences and other competitions.",
     html: `<h1 class="page-title">Awards</h1><p class="page-sub">Model UN conferences and other competitions.</p>
       ${body ? `<div class="timeline">${body}</div>` : `<p class="empty">Nothing here yet.</p>`}`
   };
@@ -234,6 +246,7 @@ async function books() {
   }).join("");
   return {
     title: "Books",
+    description: "What I've been reading, and what I thought of it.",
     html: `<h1 class="page-title">Books</h1><p class="page-sub">What I've been reading, and what I thought of it.</p>
       ${undated.length ? `<h2 class="sec">Currently reading</h2><ul class="book-list">${undated.map(bookRow).join("")}</ul>` : ""}
       ${body ? `<div class="timeline">${body}</div>` : (!undated.length ? `<p class="empty">Nothing here yet.</p>` : "")}`
@@ -243,6 +256,7 @@ async function books() {
 async function contact() {
   return {
     title: "Contact",
+    description: "Questions, corrections and critiques of the drafts are all welcome.",
     html: `<h1 class="page-title">Contact</h1>
       <p class="page-sub">Questions, corrections and critiques of the drafts are all welcome.</p>
       ${S.email ? `<p>Or write directly to <a href="mailto:${esc(S.email)}">${esc(S.email)}</a>.</p>` : ""}
@@ -307,21 +321,21 @@ async function externalPreview(u) {
 
 async function resolvePreview(url) {
   const u = new URL(url);
-  const internal = u.origin === location.origin && u.pathname === location.pathname && u.hash.startsWith("#/");
+  const internal = u.origin === location.origin && (u.pathname === BASE || u.pathname.startsWith(BASE + "/"));
   if (!internal) return externalPreview(u);
-  const path = u.hash.slice(1).split("?")[0].replace(/\/+$/, "") || "/";
+  const path = (u.pathname.slice(BASE.length) || "/").replace(/\/+$/, "") || "/";
   let m;
   if ((m = path.match(/^\/projects\/([^/]+)$/))) {
     const p = (await data.projects()).find(x => x.slug === m[1]);
-    if (p) return { title: "Project", image: p.cover, heading: p.title, meta: statusLine(p), text: p.summary || excerpt(p.body, 260), href: "#" + path };
+    if (p) return { title: "Project", image: p.cover, heading: p.title, meta: statusLine(p), text: p.summary || excerpt(p.body, 260), href: BASE + path };
   }
   if ((m = path.match(/^\/writing\/([^/]+)$/))) {
     const w = (await data.posts()).find(x => x.slug === m[1]);
-    if (w) return { title: "Writing", image: w.cover, heading: w.title, meta: `${D(w.date)}, ${readingTime(w.body)} min read`, text: w.excerpt || excerpt(w.body, 300), href: "#" + path };
+    if (w) return { title: "Writing", image: w.cover, heading: w.title, meta: `${D(w.date)}, ${readingTime(w.body)} min read`, text: w.excerpt || excerpt(w.body, 300), href: BASE + path };
   }
   const plain = { "/": ["Home", S.siteTitle, S.tagline], "/about": ["About", "About", excerpt(S.about, 260)], "/projects": ["Projects", "Projects", "Long-running work, each with its own record."], "/writing": ["Writing", "Writing", "Everything written lately, newest first."], "/awards": ["Awards", "Awards", "Model UN conferences and other competitions."], "/contact": ["Contact", "Contact", "Questions, corrections and critiques are welcome."] }[path];
-  if (plain) return { title: plain[0], heading: plain[1], text: plain[2], href: "#" + path };
-  return { title: "Page", heading: path, text: "", href: "#" + path };
+  if (plain) return { title: plain[0], heading: plain[1], text: plain[2], href: BASE + path };
+  return { title: "Page", heading: path, text: "", href: BASE + path };
 }
 
 /* ---------- router ---------- */
@@ -436,13 +450,12 @@ function decorate(root) {
   capLede(root);
   wireReadMore(root);
   root.querySelectorAll("a[href]").forEach(a => {
-    let href = a.getAttribute("href");
-    // Authors can write /projects/my-project in markdown; on this site that means #/projects/my-project.
-    if (/^\/(?!\/)/.test(href)) { href = "#" + href; a.setAttribute("href", href); }
-    if (/^(mailto:|tel:)/.test(href) || a.dataset.fn) return;
-    const route = href.startsWith("#/");
-    if (href.startsWith("#") && !route) return;
-    if (!route) { a.target = "_blank"; a.rel = "noopener noreferrer"; }
+    const raw = a.getAttribute("href");
+    if (/^(mailto:|tel:)/.test(raw) || a.dataset.fn || raw.startsWith("#")) return;
+    // Authors can write /projects/my-project in markdown; resolve it to this site's real address.
+    const route = /^\/(?!\/)/.test(raw);
+    if (route) a.setAttribute("href", BASE + raw);
+    else { a.target = "_blank"; a.rel = "noopener noreferrer"; }
     if (a.closest(".filters")) return;
     // Image-only links (linked images, project covers) just turn to colour on hover. No preview window.
     if (a.querySelector("img, figure") && !a.textContent.trim()) return;
@@ -450,27 +463,34 @@ function decorate(root) {
   });
 }
 
+function currentPath() {
+  let p = location.pathname;
+  if (BASE && p.startsWith(BASE)) p = p.slice(BASE.length);
+  if (!p.startsWith("/")) p = "/" + p;
+  return p.replace(/\/+$/, "") || "/";
+}
+
 async function renderPage(keepScroll = false) {
   const y = window.scrollY;
   closeAll();
-  const raw = location.hash.startsWith("#/") ? location.hash.slice(1) : "/";
-  const [pathPart, qs = ""] = raw.split("?");
-  const path = pathPart.replace(/\/+$/, "") || "/";
+  const path = currentPath();
   let out = notFound();
   for (const [re, fn] of routes) {
     const m = path.match(re);
     if (m) {
-      try { out = await fn(m, new URLSearchParams(qs)); }
+      try { out = await fn(m, new URLSearchParams(location.search)); }
       catch (err) { console.error(err); out = { title: "Error", html: `<h1 class="page-title">Something went wrong</h1><p>The page could not be loaded. Try again in a moment.</p>` }; }
       break;
     }
   }
   view.innerHTML = out.html;
   document.title = out.title ? `${out.title} | ${S.siteTitle}` : S.siteTitle;
+  $('meta[name="description"]')?.setAttribute("content", out.description || S.tagline || "");
+  $('link[rel="canonical"]')?.setAttribute("href", BASE + path);
   decorate(view);
   out.after?.();
   document.querySelectorAll("#nav a").forEach(a => {
-    const p = a.getAttribute("href").slice(1);
+    const p = a.getAttribute("href").slice(BASE.length) || "/";
     a.toggleAttribute("aria-current", path === p || path.startsWith(p + "/"));
     if (a.hasAttribute("aria-current")) a.setAttribute("aria-current", "page");
   });
@@ -484,7 +504,44 @@ document.addEventListener("click", e => {
   e.preventDefault();
   document.getElementById(a.dataset.fn)?.scrollIntoView({ block: "center" });
 });
-window.addEventListener("hashchange", () => renderPage());
+
+// Any same-origin, in-scope link -- in the nav, in rendered content, or in a preview
+// window's "Open page" button -- is a soft navigation (pushState + re-render), not a
+// full page load. Real paths outside this site's BASE, external links, and links the
+// browser is being asked to open some other way (new tab, modifier key) fall through
+// to normal browser handling.
+document.addEventListener("click", e => {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const a = e.target.closest("a[href]");
+  if (!a || a.target === "_blank" || a.dataset.fn) return;
+  let u;
+  try { u = new URL(a.href); } catch { return; }
+  if (u.origin !== location.origin || !(u.pathname === BASE || u.pathname.startsWith(BASE + "/"))) return;
+  e.preventDefault();
+  if (u.href !== location.href) history.pushState(null, "", u.href);
+  renderPage();
+});
+window.addEventListener("popstate", () => renderPage());
+
+// Theme toggle. js/init-theme.js already applied the saved/OS choice before first paint;
+// this just keeps the button's label in sync and persists the visitor's choice.
+function initThemeToggle() {
+  const btn = $("#themeToggle");
+  if (!btn) return;
+  const sync = () => {
+    const light = document.documentElement.getAttribute("data-theme") === "light";
+    btn.setAttribute("aria-label", light ? "Switch to dark mode" : "Switch to light mode");
+    $('meta[name="theme-color"]')?.setAttribute("content", light ? "#ffffff" : "#2b2b2c");
+  };
+  sync();
+  btn.addEventListener("click", () => {
+    const light = document.documentElement.getAttribute("data-theme") !== "light";
+    if (light) document.documentElement.setAttribute("data-theme", "light");
+    else document.documentElement.removeAttribute("data-theme");
+    try { localStorage.setItem("ar:theme", light ? "light" : "dark"); } catch { /* storage blocked */ }
+    sync();
+  });
+}
 
 function chrome() {
   $("#wordmark").textContent = S.siteTitle;
@@ -493,6 +550,10 @@ function chrome() {
 
 (async function start() {
   initPopups(resolvePreview);
+  initThemeToggle();
+  // The nav and wordmark are static markup in index.html, written as root-relative links
+  // ("/projects"); they only need the BASE prefix once, not on every render like `view` does.
+  document.querySelectorAll('header.top a[href^="/"]').forEach(a => a.setAttribute("href", BASE + a.getAttribute("href")));
   view.innerHTML = `<p class="empty" style="margin-top:3rem">Loading…</p>`;
   try { S = await data.settings(); } catch (err) { console.error(err); S = { siteTitle: "Aryamann Reet", footerNote: "" }; }
   chrome();
@@ -502,7 +563,7 @@ function chrome() {
   window.addEventListener("data:updated", () => {
     clearTimeout(t);
     t = setTimeout(async () => {
-      if (location.hash.startsWith("#/contact")) return; // don't wipe a half-written message
+      if (currentPath() === "/contact") return; // don't wipe a half-written message
       try { S = await data.settings(); } catch { /* keep current */ }
       chrome(); renderPage(true);
     }, 150);

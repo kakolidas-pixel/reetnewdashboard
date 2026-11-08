@@ -32,7 +32,7 @@ export function initPopups(resolve) {
     open(a, true);
   }, true);
   document.addEventListener("pointerdown", e => { if (e.target.closest?.("a")) clearTimeout(hoverTimer); }, true);
-  window.addEventListener("hashchange", closeAll);
+  window.addEventListener("popstate", closeAll);
   document.addEventListener("keydown", e => { if (e.key === "Escape") [...wins.values()].pop()?.close(); });
   document.addEventListener("pointerdown", e => {
     if (!e.target.closest?.(".win,a.peek")) [...wins.values()].forEach(w => { if (!w.pinned) w.close(); });

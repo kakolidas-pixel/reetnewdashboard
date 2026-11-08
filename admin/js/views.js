@@ -180,7 +180,7 @@ export const editor = kind => async (stage, id) => {
       h("div", { class: "actions left" },
         live ? h("button", { class: "btn", type: "button", onclick: () => save() }, "Save changes") : h("button", { class: "btn ghost", type: "button", onclick: () => save() }, "Save draft"),
         live ? h("button", { class: "btn ghost", type: "button", onclick: () => save({ publish: false }) }, "Unpublish") : h("button", { class: "btn", type: "button", onclick: () => save({ publish: true }) }, "Publish")),
-      live && docId && h("a", { class: "linkish", href: `${siteRoot}#/${cfg.site}/${doc.slug}`, target: "_blank", rel: "noopener" }, "View on the site"));
+      live && docId && h("a", { class: "linkish", href: `${siteRoot}${cfg.site}/${doc.slug}`, target: "_blank", rel: "noopener" }, "View on the site"));
   }
   draw();
 

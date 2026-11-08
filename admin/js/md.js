@@ -1,7 +1,7 @@
 // Markdown rendering shared by the site and the dashboard preview.
 // Supports GitHub-style markdown, figures with captions, and footnotes ([^1] and [^1]: text).
-import { marked, Renderer } from "https://cdn.jsdelivr.net/npm/marked@12.0.2/+esm";
-import DOMPurify from "https://cdn.jsdelivr.net/npm/dompurify@3.1.6/+esm";
+import { marked, Renderer } from "./vendor/marked.esm.js";
+import DOMPurify from "./vendor/dompurify.esm.js";
 
 const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
