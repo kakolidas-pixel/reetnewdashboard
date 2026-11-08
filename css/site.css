@@ -254,17 +254,6 @@ form.contact input:focus,form.contact textarea:focus{border-color:var(--accent)}
 .win.wide{width:min(46rem,calc(100vw - 1.5rem))}
 .win.wide .win-body{max-height:none}
 .win-body iframe.live{width:100%;height:min(58vh,26rem);border:0;background:#fff;display:block}
-
-/* Popin: the touch variant of the preview window above, inserted into the page flow instead of
-   floating. Same border/type treatment, but static-positioned, full-width, no drag affordance,
-   and bigger tap targets throughout since a touch screen is how it will be dismissed. */
-.win.inline{position:static;width:100%;max-width:100%;box-shadow:none;margin:1.1rem 0}
-.win.inline .win-bar{cursor:default}
-.win.inline .win-close{width:1.5rem;height:1.5rem;position:relative}
-.win.inline .win-close::before,.win.inline .win-close::after{content:"";position:absolute;left:50%;top:50%;width:.9rem;height:1px;background:var(--accent);transform:translate(-50%,-50%) rotate(45deg)}
-.win.inline .win-close::after{transform:translate(-50%,-50%) rotate(-45deg)}
-.win.inline .win-go{padding:.55rem 1.1rem}
-.win.inline .win-go.alt{padding:.5rem 1.05rem}
 .win-go:hover{background:var(--ink);color:var(--on-accent)}
 @media (max-width:640px){
   .top nav{flex-wrap:wrap;gap:.5rem 1.1rem}
@@ -316,8 +305,7 @@ form.contact input:focus,form.contact textarea:focus{border-color:var(--accent)}
   :root[data-layout="paper"] .prose>*{break-inside:avoid-column}
   :root[data-layout="paper"] .prose h2,:root[data-layout="paper"] .prose h3,
   :root[data-layout="paper"] .prose blockquote,:root[data-layout="paper"] .prose figure,
-  :root[data-layout="paper"] .prose pre,:root[data-layout="paper"] .prose table,
-  :root[data-layout="paper"] .prose .win.inline{column-span:all}
+  :root[data-layout="paper"] .prose pre,:root[data-layout="paper"] .prose table{column-span:all}
 }
 @media (max-width:640px){
   :root[data-layout="paper"] .top-right{width:100%}
