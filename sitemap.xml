@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  This only lists the site's fixed pages. Writing, projects, awards and books live in
-  Firestore and are created from Desk, so a static file like this one can't know about them
-  in advance -- there's no build step that runs when you publish a post. If deeper indexing
-  of individual posts/projects matters, the next step would be a small script (or a Firebase
-  Cloud Function on publish) that regenerates this file from the database.
+  This file only lists the site's fixed pages. functions/sitemap.xml.js builds the real,
+  up-to-date sitemap from Firestore (including every published post and project) and is
+  served in preference to this file by Cloudflare Pages. This one stays as the fallback it
+  falls back to if that Function ever errors -- keep it listing the fixed pages, at least.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://aryamannreet.in/</loc></url>
@@ -14,4 +13,6 @@
   <url><loc>https://aryamannreet.in/awards</loc></url>
   <url><loc>https://aryamannreet.in/books</loc></url>
   <url><loc>https://aryamannreet.in/contact</loc></url>
+  <url><loc>https://aryamannreet.in/privacy</loc></url>
+  <url><loc>https://aryamannreet.in/copyright</loc></url>
 </urlset>
