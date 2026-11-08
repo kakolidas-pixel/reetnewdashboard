@@ -615,7 +615,9 @@ function initThemeToggle() {
   if (!btn) return;
   const sync = () => {
     const light = document.documentElement.getAttribute("data-theme") === "light";
-    btn.setAttribute("aria-label", light ? "Switch to dark mode" : "Switch to light mode");
+    const label = light ? "Switch to dark mode" : "Switch to light mode";
+    btn.setAttribute("aria-label", label);
+    btn.title = label;
     $('meta[name="theme-color"]')?.setAttribute("content", light ? "#ffffff" : "#2b2b2c");
   };
   sync();
@@ -636,7 +638,9 @@ function initLayoutToggle() {
   if (!btn) return;
   const sync = () => {
     const paper = document.documentElement.getAttribute("data-layout") === "paper";
-    btn.setAttribute("aria-label", paper ? "Switch to normal layout" : "Switch to newspaper layout");
+    const label = paper ? "Switch to normal layout" : "Switch to newspaper layout";
+    btn.setAttribute("aria-label", label);
+    btn.title = label;
     btn.classList.toggle("is-on", paper);
   };
   sync();

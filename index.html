@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' https: data:; connect-src 'self' https://*.googleapis.com https://*.wikipedia.org; frame-src https:; base-uri 'self'; form-action 'self'; object-src 'none'">
-<script src="js/init-theme.js"></script>
+<script src="/js/init-theme.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aryamann Reet</title>
 <meta name="description" content="Research, writing and projects by Aryamann Reet.">
@@ -24,10 +24,10 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%232b2b2c'/%3E%3Ctext x='16' y='25' font-size='24' text-anchor='middle' fill='%23f2c230' font-family='Georgia,serif'%3EA%3C/text%3E%3C/svg%3E">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
-<link rel="modulepreload" href="js/vendor/marked.esm.js">
-<link rel="modulepreload" href="js/vendor/dompurify.esm.js">
-<link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="css/site.css">
+<link rel="modulepreload" href="/js/vendor/marked.esm.js">
+<link rel="modulepreload" href="/js/vendor/dompurify.esm.js">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/site.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Person","name":"Aryamann Reet","url":"https://aryamannreet.in/"}
 </script>
@@ -46,10 +46,19 @@
       <a href="/about">About</a>
       <a href="/contact">Contact</a>
     </nav>
-    <button class="theme-toggle" id="layoutToggle" type="button" aria-label="Switch to newspaper layout">
-      <span class="cols" aria-hidden="true"></span>
+    <button class="theme-toggle" id="layoutToggle" type="button" aria-label="Switch to newspaper layout" title="Switch to newspaper layout">
+      <svg class="news-icon" aria-hidden="true" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round">
+        <rect x="2" y="3" width="12" height="10" rx=".5"></rect>
+        <line x1="2" y1="6.2" x2="14" y2="6.2"></line>
+        <line x1="8" y1="6.2" x2="8" y2="13"></line>
+        <line x1="3.3" y1="8.1" x2="6.7" y2="8.1"></line>
+        <line x1="3.3" y1="9.9" x2="6.7" y2="9.9"></line>
+        <line x1="3.3" y1="11.7" x2="6.1" y2="11.7"></line>
+        <line x1="9.3" y1="8.1" x2="12.7" y2="8.1"></line>
+        <line x1="9.3" y1="9.9" x2="12.7" y2="9.9"></line>
+      </svg>
     </button>
-    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light mode">
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light mode" title="Switch to light mode">
       <span class="sun" aria-hidden="true">&#9728;</span>
       <span class="moon" aria-hidden="true">&#9789;</span>
     </button>
@@ -58,6 +67,6 @@
 <main id="view" tabindex="-1"></main>
 <footer class="foot" id="foot"></footer>
 <noscript><p style="padding:2rem;color:#e1dfd8">This site needs JavaScript to load its pages.</p></noscript>
-<script type="module" src="js/app.js"></script>
+<script type="module" src="/js/app.js"></script>
 </body>
 </html>

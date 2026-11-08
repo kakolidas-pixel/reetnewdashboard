@@ -51,9 +51,9 @@ main{flex:1;padding-bottom:5rem;outline:none;position:relative}
 .theme-toggle .moon{display:none}
 :root[data-theme="light"] .theme-toggle .sun{display:none}
 :root[data-theme="light"] .theme-toggle .moon{display:block}
-/* Paper-layout toggle: a tiny set of column rules, echoing the .stripes motif used elsewhere
-   (win-bar, margin-note labels) so the icon reads as "this site's own" rather than a borrowed glyph. */
-#layoutToggle .cols{width:1rem;height:.95rem;background:repeating-linear-gradient(90deg,currentColor 0 2px,transparent 2px 5px)}
+/* Paper-layout toggle: a small newspaper-page icon (masthead rule + two columns), so it reads
+   clearly rather than as an abstract glyph. */
+#layoutToggle .news-icon{display:block}
 #layoutToggle.is-on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 
 .foot{border-top:1px solid var(--rule);padding:1.6rem 0 2.6rem;color:var(--ink3);font-size:.9rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
