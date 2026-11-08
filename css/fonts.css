@@ -1,0 +1,12 @@
+/* Self-hosted fonts (vendored from Google Fonts' css2 API, Latin subset only -- this site's
+   content is English). Removes fonts.googleapis.com/fonts.gstatic.com as a runtime dependency:
+   one less third party seeing visitor IPs just to render text, one less render-blocking
+   cross-origin request, and a simpler CSP. See css/fonts/ for the files themselves.
+   Each of these is a variable-font file shared across the weights below -- that's normal:
+   Google's own served CSS does the same thing, and browsers render the pinned weight
+   correctly from a single variable-font resource. */
+@font-face{font-family:"EB Garamond";font-style:normal;font-weight:400 600;font-display:swap;src:url("fonts/eb-garamond-400-600.woff2") format("woff2")}
+@font-face{font-family:"EB Garamond";font-style:italic;font-weight:400 500;font-display:swap;src:url("fonts/eb-garamond-italic-400-500.woff2") format("woff2")}
+@font-face{font-family:"Cinzel";font-style:normal;font-weight:700 900;font-display:swap;src:url("fonts/cinzel-700-900.woff2") format("woff2")}
+@font-face{font-family:"Courier Prime";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/courier-prime-400.woff2") format("woff2")}
+@font-face{font-family:"Courier Prime";font-style:italic;font-weight:400;font-display:swap;src:url("fonts/courier-prime-italic-400.woff2") format("woff2")}

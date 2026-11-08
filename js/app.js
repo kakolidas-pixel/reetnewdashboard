@@ -30,7 +30,7 @@ const projectEntry = p => `
       <p class="status">${esc(statusLine(p))}</p>
       <p>${esc(p.summary || excerpt(p.body, 200))}</p>
     </div>
-    ${p.cover ? `<a class="cover" href="/projects/${esc(p.slug)}" tabindex="-1" aria-hidden="true"><img src="${esc(p.cover)}" alt=""></a>` : ""}
+    ${p.cover ? `<a class="cover" href="/projects/${esc(p.slug)}" tabindex="-1" aria-hidden="true"><img src="${esc(p.cover)}" alt="" loading="lazy"></a>` : ""}
   </article>`;
 
 /* ---------- views ---------- */
@@ -77,7 +77,7 @@ async function home() {
 }
 
 async function about() {
-  const portrait = S.portrait ? `<div class="portrait"><img src="${esc(S.portrait)}" alt="Portrait of ${esc(S.siteTitle)}"></div>` : "";
+  const portrait = S.portrait ? `<div class="portrait"><img src="${esc(S.portrait)}" alt="Portrait of ${esc(S.siteTitle)}" loading="lazy"></div>` : "";
   const links = (S.links || []).length ? `<ul class="links">${S.links.map(l => `<li><a href="${esc(l.url)}">${esc(l.label)}</a></li>`).join("")}</ul>` : "";
   return {
     title: "About",
@@ -128,6 +128,14 @@ async function project([, slug]) {
   return {
     title: p.title,
     description: p.summary || excerpt(p.body, 160),
+    structured: {
+      "@context": "https://schema.org", "@type": "CreativeWork",
+      name: p.title, description: p.summary || excerpt(p.body, 260),
+      url: location.origin + BASE + "/projects/" + p.slug,
+      ...(p.startDate ? { dateCreated: p.startDate } : {}),
+      ...(p.cover ? { image: p.cover } : {}),
+      author: { "@type": "Person", name: S.siteTitle }
+    },
     html: `<h1 class="page-title">${esc(p.title)}</h1><p class="meta">${esc(statusLine(p))}</p>
       ${tagLine(p.tags)}
       ${marginNotes(p.disclaimer, sources)}
@@ -201,6 +209,14 @@ async function post([, slug]) {
   return {
     title: w.title,
     description: w.excerpt || excerpt(w.body, 160),
+    structured: {
+      "@context": "https://schema.org", "@type": "BlogPosting",
+      headline: w.title, description: w.excerpt || excerpt(w.body, 260),
+      url: location.origin + BASE + "/writing/" + w.slug,
+      ...(w.date ? { datePublished: w.date } : {}),
+      ...(w.cover ? { image: w.cover } : {}),
+      author: { "@type": "Person", name: S.siteTitle }
+    },
     html: `<h1 class="page-title">${esc(w.title)}</h1>
       <p class="meta">${D(w.date)}, ${readingTime(w.body)} min read${proj ? `. Part of <a href="/projects/${esc(proj.slug)}">${esc(proj.title)}</a>` : ""}</p>
       ${tagLine(w.tags)}
@@ -290,6 +306,70 @@ async function contact() {
 
 const notFound = () => ({ title: "Not found", html: `<h1 class="page-title">Not found</h1><p>That page doesn't exist. <a href="/">Go to the home page</a>.</p>` });
 
+// Static pages (privacy, copyright): fixed text, not edited from Desk, since they describe
+// how the site itself works rather than its content.
+function privacy() {
+  return {
+    title: "Privacy",
+    description: "What this site collects, why, and who can see it.",
+    html: `<h1 class="page-title">Privacy</h1><p class="page-sub">What this site collects, and what it doesn't.</p>
+      <div class="prose">
+      <h2>Short version</h2>
+      <p>This site doesn't use cookies, analytics, or advertising, and it doesn't track visitors. The only personal
+      information it collects is what's typed into the <a href="/contact">Contact</a> form, sent because someone chose to send it.</p>
+      <h2>The contact form</h2>
+      <p>Submitting it stores your name, email address and message in this site's database (Google's Firebase/Firestore,
+      hosted on infrastructure in the region the project was created in). Only the site's owner can read these messages.
+      They're kept until the owner deletes them. To ask for a message to be deleted, use the email address on the
+      <a href="/contact">Contact</a> page.</p>
+      <h2>What stays on your device</h2>
+      <p>A light/dark theme choice, and a cached copy of the public pages (so they load instantly on a repeat visit), are
+      saved in your browser's own local storage. Neither ever leaves your device or is sent anywhere.</p>
+      <h2>Outside services this site talks to</h2>
+      <p>Loading a page fetches content from Google's Firebase. Hovering a link to a Wikipedia article that doesn't
+      already have a saved preview fetches a short summary directly from Wikipedia's own public API -- the page address
+      you're hovering is sent to Wikipedia for that one request. Every other link preview is captured in advance by the
+      owner and stored on this site, so nothing is sent anywhere just by hovering it. Fonts, scripts and libraries are all
+      served from this site itself, not a third party.</p>
+      <h2>Hosting</h2>
+      <p>Like any website, the hosting provider (Cloudflare) and database provider (Google) keep their own standard
+      server logs (such as IP address and request time) as part of normal operation. This site doesn't access or use
+      those logs itself.</p>
+      <h2>Changes</h2>
+      <p>If how this site handles data changes meaningfully, this page will be updated.</p>
+      </div>`
+  };
+}
+
+function copyrightPage() {
+  const year = new Date().getFullYear();
+  return {
+    title: "Copyright",
+    description: "Rights reserved in the writing, projects and images on this site.",
+    html: `<h1 class="page-title">Copyright</h1><p class="page-sub">Rights reserved in what's published here.</p>
+      <div class="prose">
+      <p>Writing, projects, and photos on this site are &copy; ${year} ${esc(S.siteTitle)}, unless credited otherwise where
+      they appear. All rights reserved.</p>
+      <h2>Quoting and sharing</h2>
+      <p>Quoting a short passage with attribution and a link back is welcome. Republishing a piece in full, or a
+      substantial part of one, needs permission first -- use the <a href="/contact">Contact</a> page to ask.</p>
+      <h2>Text and data mining / AI training</h2>
+      <p>No permission is given for this site's writing, projects or images to be used to train, fine-tune, or
+      build a dataset for a machine-learning or AI system, or to be collected in bulk for that purpose. This is a
+      deliberate, machine-readable reservation of rights: see the <code>tdm-reservation</code> header and meta tag this
+      site sends, and the <a href="/robots.txt">robots.txt</a> entries for known AI and data-mining crawlers.</p>
+      <p>Worth being direct about what this does and doesn't do: it doesn't physically stop a crawler that ignores these
+      signals, nothing can. What it does is put a clear, dated notice on record that this use isn't authorized --
+      recognised crawlers from major AI labs and search engines do respect it, and it's the basis for any takedown
+      request if it's ignored. The copyright itself exists automatically either way; this notice just makes the
+      reservation explicit and machine-readable.</p>
+      <h2>Questions</h2>
+      <p>For permission requests, or to report a use of this content you think is out of bounds, use the
+      <a href="/contact">Contact</a> page.</p>
+      </div>`
+  };
+}
+
 /* ---------- link previews ---------- */
 
 // External links show a preview saved in advance from Desk (title, source, date, description, picture).
@@ -343,7 +423,8 @@ async function resolvePreview(url) {
 
 const routes = [
   [/^\/$/, home], [/^\/about$/, about], [/^\/projects$/, projects], [/^\/projects\/([^/]+)$/, project],
-  [/^\/awards$/, awards], [/^\/books$/, books], [/^\/writing$/, writing], [/^\/writing\/([^/]+)$/, post], [/^\/contact$/, contact]
+  [/^\/awards$/, awards], [/^\/books$/, books], [/^\/writing$/, writing], [/^\/writing\/([^/]+)$/, post], [/^\/contact$/, contact],
+  [/^\/privacy$/, privacy], [/^\/copyright$/, copyrightPage]
 ];
 
 // Small-caps the article's actual first rendered line (not a fixed word count, and not a
@@ -488,6 +569,7 @@ async function renderPage(keepScroll = false) {
   document.title = out.title ? `${out.title} | ${S.siteTitle}` : S.siteTitle;
   $('meta[name="description"]')?.setAttribute("content", out.description || S.tagline || "");
   $('link[rel="canonical"]')?.setAttribute("href", location.origin + BASE + path);
+  $("#ldRoute").textContent = out.structured ? JSON.stringify(out.structured) : "";
   decorate(view);
   out.after?.();
   document.querySelectorAll("#nav a").forEach(a => {
@@ -546,7 +628,7 @@ function initThemeToggle() {
 
 function chrome() {
   $("#wordmark").textContent = S.siteTitle;
-  $("#foot").innerHTML = `<p>${esc(S.footerNote)}</p><p>&copy; ${new Date().getFullYear()} ${esc(S.siteTitle)}${data.demoMode ? ". Demo content." : ""} &middot; Design inspired by <a href="https://gwern.net">gwern.net</a></p>`;
+  $("#foot").innerHTML = `<p>${esc(S.footerNote)}</p><p>&copy; ${new Date().getFullYear()} ${esc(S.siteTitle)}${data.demoMode ? ". Demo content." : ""} &middot; Design inspired by <a href="https://gwern.net">gwern.net</a> &middot; <a href="${BASE}/privacy">Privacy</a> &middot; <a href="${BASE}/copyright">Copyright</a></p>`;
 }
 
 (async function start() {
