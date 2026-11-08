@@ -1,5 +1,9 @@
 // Retro link-preview windows. Hover a link (desktop) or tap it (touch) to open one.
-// Windows can be dragged, pinned by clicking inside them, and closed with the box, Esc, or a click elsewhere.
+// On a fine pointer (mouse/trackpad) it's a floating window that can be dragged, pinned by
+// clicking inside it, and closed with the box, Esc, or a click elsewhere. On touch, there's no
+// hover and no good place to float a draggable box -- so instead it's a "popin": an ordinary
+// block inserted right after the link in the page flow, pushed down with the rest of the
+// content rather than overlapping it. Same gwern.net distinction (popups vs. popins).
 const fine = matchMedia("(hover:hover) and (pointer:fine)");
 const wins = new Map();
 let zTop = 60, resolver = null, hoverTimer;
@@ -40,7 +44,7 @@ export function initPopups(resolve) {
 }
 
 function position(el, a) {
-  if (matchMedia("(max-width:640px)").matches || el.dataset.moved) return;
+  if (el.classList.contains("inline") || el.dataset.moved) return;
   const r = a.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
   const x = Math.max(8, Math.min(r.left, innerWidth - w - 8));
   let y = r.bottom + 10;
@@ -66,12 +70,19 @@ function open(a, pin) {
   if (have) { have.enter(); have.front(); if (pin) have.pinned = true; return; }
   if (wins.size >= 3) [...wins.values()][0].close();
 
+  const inline = !fine.matches;
   const el = document.createElement("div");
-  el.className = "win";
+  el.className = inline ? "win inline" : "win";
   el.setAttribute("role", "dialog");
   el.setAttribute("aria-label", "Link preview");
   el.innerHTML = `<div class="win-bar"><button class="win-close" type="button" aria-label="Close preview"></button><span class="stripes"></span><span class="win-title">Opening</span><span class="stripes"></span></div><div class="win-body"><p>Reading…</p></div><div class="win-foot"></div>`;
-  document.body.append(el);
+  if (inline) {
+    // Part of the document's own flow, right after whichever block holds the link -- never a
+    // floating overlay that could cover the text around it or need dismissing by drag.
+    (a.closest("li,p,h1,h2,h3,h4,blockquote,figure,.entry,.post,.upd") || a.parentElement).insertAdjacentElement("afterend", el);
+  } else {
+    document.body.append(el);
+  }
 
   let closeTimer;
   const o = {
@@ -81,13 +92,18 @@ function open(a, pin) {
     front() { el.style.zIndex = ++zTop; },
     close() { clearTimeout(closeTimer); el.classList.remove("on"); setTimeout(() => el.remove(), 160); wins.delete(k); }
   };
-  wins.set(k, o); o.front(); position(el, a);
-  requestAnimationFrame(() => el.classList.add("on"));
-  el.addEventListener("mouseenter", o.enter);
-  el.addEventListener("mouseleave", o.leave);
-  el.addEventListener("pointerdown", () => { o.pinned = true; o.front(); });
+  wins.set(k, o);
   el.querySelector(".win-close").addEventListener("click", o.close);
-  drag(el, el.querySelector(".win-bar"));
+  if (inline) {
+    requestAnimationFrame(() => el.classList.add("on"));
+  } else {
+    o.front(); position(el, a);
+    requestAnimationFrame(() => el.classList.add("on"));
+    el.addEventListener("mouseenter", o.enter);
+    el.addEventListener("mouseleave", o.leave);
+    el.addEventListener("pointerdown", () => { o.pinned = true; o.front(); });
+    drag(el, el.querySelector(".win-bar"));
+  }
 
   const fill = info => {
     const body = el.querySelector(".win-body"), foot = el.querySelector(".win-foot");

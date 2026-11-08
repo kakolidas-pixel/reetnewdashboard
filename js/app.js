@@ -628,6 +628,27 @@ function initThemeToggle() {
   });
 }
 
+// Paper-layout toggle. js/init-theme.js already applied the saved choice before first paint;
+// this just keeps the button's label in sync and persists the visitor's choice, same pattern
+// as initThemeToggle above.
+function initLayoutToggle() {
+  const btn = $("#layoutToggle");
+  if (!btn) return;
+  const sync = () => {
+    const paper = document.documentElement.getAttribute("data-layout") === "paper";
+    btn.setAttribute("aria-label", paper ? "Switch to normal layout" : "Switch to newspaper layout");
+    btn.classList.toggle("is-on", paper);
+  };
+  sync();
+  btn.addEventListener("click", () => {
+    const paper = document.documentElement.getAttribute("data-layout") !== "paper";
+    if (paper) document.documentElement.setAttribute("data-layout", "paper");
+    else document.documentElement.removeAttribute("data-layout");
+    try { localStorage.setItem("ar:layout", paper ? "paper" : "normal"); } catch { /* storage blocked */ }
+    sync();
+  });
+}
+
 function chrome() {
   $("#wordmark").textContent = S.siteTitle;
   $("#foot").innerHTML = `<p>${esc(S.footerNote)}</p><p>&copy; ${new Date().getFullYear()} ${esc(S.siteTitle)}${data.demoMode ? ". Demo content." : ""} &middot; Design inspired by <a href="https://gwern.net">gwern.net</a> &middot; <a href="${BASE}/privacy">Privacy</a> &middot; <a href="${BASE}/copyright">Copyright</a></p>`;
@@ -636,6 +657,7 @@ function chrome() {
 (async function start() {
   initPopups(resolvePreview);
   initThemeToggle();
+  initLayoutToggle();
   // The nav and wordmark are static markup in index.html, written as root-relative links
   // ("/projects"); they only need the BASE prefix once, not on every render like `view` does.
   document.querySelectorAll('header.top a[href^="/"]').forEach(a => a.setAttribute("href", BASE + a.getAttribute("href")));

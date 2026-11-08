@@ -51,6 +51,10 @@ main{flex:1;padding-bottom:5rem;outline:none;position:relative}
 .theme-toggle .moon{display:none}
 :root[data-theme="light"] .theme-toggle .sun{display:none}
 :root[data-theme="light"] .theme-toggle .moon{display:block}
+/* Paper-layout toggle: a tiny set of column rules, echoing the .stripes motif used elsewhere
+   (win-bar, margin-note labels) so the icon reads as "this site's own" rather than a borrowed glyph. */
+#layoutToggle .cols{width:1rem;height:.95rem;background:repeating-linear-gradient(90deg,currentColor 0 2px,transparent 2px 5px)}
+#layoutToggle.is-on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 
 .foot{border-top:1px solid var(--rule);padding:1.6rem 0 2.6rem;color:var(--ink3);font-size:.9rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
 .foot p{margin:0}
@@ -250,10 +254,20 @@ form.contact input:focus,form.contact textarea:focus{border-color:var(--accent)}
 .win.wide{width:min(46rem,calc(100vw - 1.5rem))}
 .win.wide .win-body{max-height:none}
 .win-body iframe.live{width:100%;height:min(58vh,26rem);border:0;background:#fff;display:block}
+
+/* Popin: the touch variant of the preview window above, inserted into the page flow instead of
+   floating. Same border/type treatment, but static-positioned, full-width, no drag affordance,
+   and bigger tap targets throughout since a touch screen is how it will be dismissed. */
+.win.inline{position:static;width:100%;max-width:100%;box-shadow:none;margin:1.1rem 0}
+.win.inline .win-bar{cursor:default}
+.win.inline .win-close{width:1.5rem;height:1.5rem;position:relative}
+.win.inline .win-close::before,.win.inline .win-close::after{content:"";position:absolute;left:50%;top:50%;width:.9rem;height:1px;background:var(--accent);transform:translate(-50%,-50%) rotate(45deg)}
+.win.inline .win-close::after{transform:translate(-50%,-50%) rotate(-45deg)}
+.win.inline .win-go{padding:.55rem 1.1rem}
+.win.inline .win-go.alt{padding:.5rem 1.05rem}
 .win-go:hover{background:var(--ink);color:var(--on-accent)}
 @media (max-width:640px){
   .top nav{flex-wrap:wrap;gap:.5rem 1.1rem}
-  .win{left:.75rem!important;right:.75rem;top:auto!important;bottom:.75rem;width:auto}
   .entry{grid-template-columns:1fr}
   .cover img{aspect-ratio:16/9}
   .yr{grid-template-columns:1fr}
@@ -263,3 +277,49 @@ form.contact input:focus,form.contact textarea:focus{border-color:var(--accent)}
   .about-grid .portrait{order:-1;max-width:10rem}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ------------------------------------------------------------------------------------------
+   Paper layout -- an opt-in mode (toggled by #layoutToggle, saved as "ar:layout") that pushes
+   the newspaper references further: a centered masthead instead of a logo-left nav bar,
+   dateline-style bylines, pull-quote blockquotes, small-caps section rules, and (on wide
+   screens, where a 2-up column actually stays readable) multi-column article text. Everything
+   here only fires under :root[data-layout="paper"], so the default site is unaffected. */
+:root[data-layout="paper"]{--col:54rem}
+:root[data-layout="paper"] .top{flex-direction:column;align-items:center;text-align:center;gap:.9rem;
+  border-top:3px double var(--ink);border-bottom:3px double var(--rule);padding:2rem 0 1.3rem}
+:root[data-layout="paper"] .wordmark{font-size:clamp(2.1rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+:root[data-layout="paper"] .top-right{flex-direction:column;align-items:center;gap:.8rem}
+:root[data-layout="paper"] .top nav{justify-content:center;flex-wrap:wrap;gap:.2rem 1.5rem;
+  font-variant-caps:all-small-caps;letter-spacing:.07em;font-size:1.05rem;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:.5rem 0;width:100%}
+
+:root[data-layout="paper"] h2.sec,:root[data-layout="paper"] .similar-title{
+  font-variant-caps:all-small-caps;letter-spacing:.07em;font-weight:700;
+  border-bottom:1px solid var(--ink);padding-bottom:.5rem}
+
+/* dateline: the project/post byline line, styled like a paper's "CITY, Month Day --" strap */
+:root[data-layout="paper"] .meta{font-style:normal;font-variant-caps:all-small-caps;letter-spacing:.08em;
+  font-size:.95rem;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:.45rem 0}
+
+/* pull quotes: centered and rule-bound instead of the default left-border + quote-mark treatment */
+:root[data-layout="paper"] .prose blockquote{border-left:none;text-align:center;font-size:1.35em;
+  margin:2.2em 0;padding:1em 1rem;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+:root[data-layout="paper"] .prose blockquote::before{display:none}
+:root[data-layout="paper"] .prose blockquote p{text-align:center}
+:root[data-layout="paper"] .prose blockquote footer,
+:root[data-layout="paper"] .prose blockquote>p:last-child em:only-child{font-variant-caps:all-small-caps;letter-spacing:.04em}
+
+@media (min-width:860px){
+  /* Two columns only once a column is still a comfortable reading width (~24rem) at the
+     wider --col this mode uses -- narrower than that and it's just cramped, not newspaper-y. */
+  :root[data-layout="paper"] .prose{column-count:2;column-gap:2.6rem;column-rule:1px solid var(--rule)}
+  :root[data-layout="paper"] .prose>*{break-inside:avoid-column}
+  :root[data-layout="paper"] .prose h2,:root[data-layout="paper"] .prose h3,
+  :root[data-layout="paper"] .prose blockquote,:root[data-layout="paper"] .prose figure,
+  :root[data-layout="paper"] .prose pre,:root[data-layout="paper"] .prose table,
+  :root[data-layout="paper"] .prose .win.inline{column-span:all}
+}
+@media (max-width:640px){
+  :root[data-layout="paper"] .top-right{width:100%}
+  :root[data-layout="paper"] .top nav{gap:.3rem 1rem;font-size:.95rem}
+}

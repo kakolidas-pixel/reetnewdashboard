@@ -9,3 +9,12 @@
     if (light) document.documentElement.setAttribute("data-theme", "light");
   } catch { /* storage blocked; the dark theme is the default anyway */ }
 })();
+
+// Same idea for the optional "paper" layout (masthead header, pull-quotes, multi-column
+// article text) -- applied before paint so there's no flash of the normal layout. No OS
+// signal to fall back to here; it's off unless the visitor turned it on last time.
+(function () {
+  try {
+    if (localStorage.getItem("ar:layout") === "paper") document.documentElement.setAttribute("data-layout", "paper");
+  } catch { /* storage blocked; normal layout is the default anyway */ }
+})();
