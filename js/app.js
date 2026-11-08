@@ -141,7 +141,7 @@ async function project([, slug]) {
       ${marginNotes(p.disclaimer, sources)}
       ${p.cover ? `<figure class="hero-img"><img src="${esc(p.cover)}" alt=""></figure>` : ""}
       <div class="prose" data-md>${md(p.body)}</div>
-      ${updates.length ? `<h2 class="sec">Updates</h2>${updates.map(u => `<article class="upd"><time datetime="${u.date}">${D(u.date, { day: "numeric", month: "short", year: "numeric" })}</time><div>${u.title ? `<h3>${esc(u.title)}</h3>` : ""}<div class="prose">${md(u.body)}</div>${(u.disclaimer || "").trim() ? `<div class="inline-note"><p class="label">Note</p><p>${inline(u.disclaimer)}</p></div>` : ""}${(u.sources || []).length ? `<div class="upd-sources"><p class="label">Sources</p>${sourcesList(u.sources)}</div>` : ""}</div></article>`).join("")}` : ""}
+      ${updates.length ? `<h2 class="sec">Updates</h2>${updates.map(u => `<article class="upd"><time datetime="${u.date}">${D(u.date, { day: "numeric", month: "short", year: "numeric" })}</time><div><h3><a href="/writing/${esc(u.slug)}">${esc(u.title || "Update")}</a></h3><div class="prose">${md(u.body)}</div>${(u.disclaimer || "").trim() ? `<div class="inline-note"><p class="label">Note</p><p>${inline(u.disclaimer)}</p></div>` : ""}${(u.sources || []).length ? `<div class="upd-sources"><p class="label">Sources</p>${sourcesList(u.sources)}</div>` : ""}</div></article>`).join("")}` : ""}
       ${related.length ? `<h2 class="sec related">Writing on this project</h2>${related.map(w => postRow(w, [])).join("")}` : ""}`
   };
 }
@@ -189,6 +189,8 @@ async function post([, slug]) {
   if (!w) return notFound();
   const proj = P.find(p => p.id === w.projectId);
   const sources = (w.sources || []).filter(s => (s.citation || "").trim());
+  // An update may not have its own title -- fall back the same way the Writing list already does.
+  const title = w.title || (w.type === "update" ? (proj ? `Update on ${proj.title}` : "Project update") : "Untitled");
 
   // Articles only (no updates), already newest-first from data.posts(). Tag overlap surfaces
   // genuinely related reading when there is any, rather than a generic "recommended" grid
@@ -207,17 +209,17 @@ async function post([, slug]) {
     : "";
 
   return {
-    title: w.title,
+    title,
     description: w.excerpt || excerpt(w.body, 160),
     structured: {
       "@context": "https://schema.org", "@type": "BlogPosting",
-      headline: w.title, description: w.excerpt || excerpt(w.body, 260),
+      headline: title, description: w.excerpt || excerpt(w.body, 260),
       url: location.origin + BASE + "/writing/" + w.slug,
       ...(w.date ? { datePublished: w.date } : {}),
       ...(w.cover ? { image: w.cover } : {}),
       author: { "@type": "Person", name: S.siteTitle }
     },
-    html: `<h1 class="page-title">${esc(w.title)}</h1>
+    html: `<h1 class="page-title">${esc(title)}</h1>
       <p class="meta">${D(w.date)}, ${readingTime(w.body)} min read${proj ? `. Part of <a href="/projects/${esc(proj.slug)}">${esc(proj.title)}</a>` : ""}</p>
       ${tagLine(w.tags)}
       ${marginNotes(w.disclaimer, sources)}
