@@ -203,8 +203,10 @@ img:hover,a:hover img,figure:hover img,.entry:hover img{filter:none}
 .hero-img{margin:0 0 2.4rem}
 /* The tags line's own line-height leaves visible air below the glyphs even with 0 margin, so
    the image reads as floating further from the tags than it actually is. Pull it up to close
-   that gap. ~ (not +) because an optional margin-notes aside can sit between them in markup. */
-.tags ~ .hero-img{margin-top:-.9rem}
+   that gap -- but only by about half the line-height's leading (not the full visual gap), or it
+   overlaps and clips the tags text itself rather than just tightening the whitespace below it.
+   ~ (not +) because an optional margin-notes aside can sit between them in markup. */
+.tags ~ .hero-img{margin-top:-.2rem}
 .hero-img img{width:100%;max-height:26rem;object-fit:cover}
 .related{margin-top:4rem}
 /* "Similar writing" -- same spirit as gwern's Similar Links: a big small-caps title and a
@@ -275,7 +277,7 @@ form.contact input:focus,form.contact textarea:focus{border-color:var(--accent)}
    here only fires under :root[data-layout="paper"], so the default site is unaffected. */
 :root[data-layout="paper"]{--col:54rem}
 :root[data-layout="paper"] .top{flex-direction:column;align-items:center;text-align:center;gap:.9rem;
-  border-top:3px double var(--ink);border-bottom:3px double var(--rule);padding:2rem 0 1.3rem}
+  border-top:3px double var(--ink);border-bottom:3px double var(--rule);padding:1.7rem 0}
 :root[data-layout="paper"] .wordmark{font-size:clamp(2.1rem,6vw,3.1rem);font-weight:700;letter-spacing:-.01em}
 /* Flex-wrap, not flex-direction:column and not grid: .top-right holds nav and the two toggle
    buttons as plain siblings. flex-direction:column stacked all three individually (nav, then
