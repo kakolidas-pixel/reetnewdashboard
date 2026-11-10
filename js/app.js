@@ -360,11 +360,6 @@ function copyrightPage() {
       build a dataset for a machine-learning or AI system, or to be collected in bulk for that purpose. This is a
       deliberate, machine-readable reservation of rights: see the <code>tdm-reservation</code> header and meta tag this
       site sends, and the <a href="/robots.txt">robots.txt</a> entries for known AI and data-mining crawlers.</p>
-      <p>Worth being direct about what this does and doesn't do: it doesn't physically stop a crawler that ignores these
-      signals, nothing can. What it does is put a clear, dated notice on record that this use isn't authorized --
-      recognised crawlers from major AI labs and search engines do respect it, and it's the basis for any takedown
-      request if it's ignored. The copyright itself exists automatically either way; this notice just makes the
-      reservation explicit and machine-readable.</p>
       <h2>Questions</h2>
       <p>For permission requests, or to report a use of this content you think is out of bounds, use the
       <a href="/contact">Contact</a> page.</p>
