@@ -270,24 +270,30 @@ form.contact input:focus,form.contact textarea:focus{border-color:var(--accent)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
 /* ------------------------------------------------------------------------------------------
-   Site statement -- a small, fixed (non-dismissable, on purpose) note after the page content,
-   stating plainly what this site refuses to do: sell attention to ad brokers, track across
-   sites, scrape/train on content, bloat the page, lock readers in, etc. Deliberately styled
-   like the .mn-box margin notes (dashed border, bg2, small-caps mono label) and sized the same
-   (max-width 15rem, same as the wide-screen .margin-notes width) rather than a loud banner --
-   pinned to the right edge of the column so it reads as a margin note, not an interruption. */
-.manifesto{width:min(var(--col),calc(100% - 2.5rem));margin:0 auto 1.5rem;display:flex;justify-content:flex-end}
-.manifesto-box{width:100%;max-width:15rem;padding:.8rem .9rem;background:var(--bg2);
-  border:1px dashed var(--rule)}
-.manifesto-head{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem;margin-bottom:.5rem}
-.manifesto-label{font-family:var(--type);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
-.manifesto-count{font-family:var(--type);font-size:.72rem;color:var(--ink3)}
-.manifesto-text{margin:0;color:var(--ink2);font-size:.92rem;line-height:1.55}
-.manifesto-controls{display:flex;justify-content:flex-end;gap:.4rem;margin-top:.6rem}
+   Site statement -- a permanent (non-dismissable, on purpose), titled broadside against ad
+   tech, tracking and enshittification, after the page content on every route. Full width of
+   the column by default; once the viewport is wide enough to have a real margin to put it in
+   (same 1400px threshold as .margin-notes above), it shrinks into that margin instead, using
+   the same left:100% + width-calc trick, with .manifesto itself as the positioned ancestor. */
+.manifesto{width:min(var(--col),calc(100% - 2.5rem));margin:0 auto 1.5rem;position:relative}
+.manifesto-box{width:100%;padding:1.1rem 1.2rem;background:var(--bg2);border:1px dashed var(--rule)}
+.manifesto-head{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem;margin-bottom:.4rem}
+.manifesto-title{font-family:var(--serif);font-weight:700;font-style:normal;font-size:1.15rem;
+  line-height:1.2;margin:0;color:var(--ink)}
+.manifesto-count{font-family:var(--type);font-size:.72rem;color:var(--ink3);flex:none}
+.manifesto-text{margin:0;color:var(--ink2);font-size:.98rem;line-height:1.55}
+.manifesto-controls{display:flex;justify-content:flex-end;gap:.4rem;margin-top:.7rem}
 .manifesto-btn{font:inherit;font-size:.85rem;line-height:1;background:none;color:var(--ink3);
   border:1px solid var(--rule);border-radius:50%;width:1.5rem;height:1.5rem;
   display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
 .manifesto-btn:hover{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+@media (min-width:1400px){
+  .manifesto{min-height:9.5rem}
+  .manifesto-box{position:absolute;left:100%;top:0;margin-left:1.5rem;
+    width:calc((100vw - 874px)/2 - 1.5rem - 1.2rem);max-width:15rem;padding:.8rem .9rem}
+  .manifesto-title{font-size:1rem}
+  .manifesto-text{font-size:.92rem}
+}
 
 /* ------------------------------------------------------------------------------------------
    Paper layout -- an opt-in mode (toggled by #layoutToggle, saved as "ar:layout") that pushes
