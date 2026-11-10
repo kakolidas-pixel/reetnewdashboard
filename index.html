@@ -80,8 +80,22 @@
   </div>
 </header>
 <main id="view" tabindex="-1"></main>
+<div class="manifesto" id="manifesto">
+  <div class="manifesto-box">
+    <div class="manifesto-head">
+      <span class="manifesto-label">Statement</span>
+      <span class="manifesto-count"><span id="mIndex">01</span>/<span id="mTotal">01</span></span>
+    </div>
+    <p class="manifesto-text" id="mText"></p>
+    <div class="manifesto-controls">
+      <button class="manifesto-btn" id="mPrev" type="button" aria-label="Previous statement">&#8249;</button>
+      <button class="manifesto-btn" id="mNext" type="button" aria-label="Next statement">&#8250;</button>
+    </div>
+  </div>
+</div>
 <footer class="foot" id="foot"></footer>
 <noscript><p style="padding:2rem;color:#e1dfd8">This site needs JavaScript to load its pages.</p></noscript>
 <script type="module" src="/js/app.js"></script>
+<script src="/js/manifesto.js"></script>
 </body>
 </html>

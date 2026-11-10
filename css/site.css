@@ -270,6 +270,26 @@ form.contact input:focus,form.contact textarea:focus{border-color:var(--accent)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
 /* ------------------------------------------------------------------------------------------
+   Site statement -- a small, fixed (non-dismissable, on purpose) note after the page content,
+   stating plainly what this site refuses to do: sell attention to ad brokers, track across
+   sites, scrape/train on content, bloat the page, lock readers in, etc. Deliberately styled
+   like the .mn-box margin notes (dashed border, bg2, small-caps mono label) and sized the same
+   (max-width 15rem, same as the wide-screen .margin-notes width) rather than a loud banner --
+   pinned to the right edge of the column so it reads as a margin note, not an interruption. */
+.manifesto{width:min(var(--col),calc(100% - 2.5rem));margin:0 auto 1.5rem;display:flex;justify-content:flex-end}
+.manifesto-box{width:100%;max-width:15rem;padding:.8rem .9rem;background:var(--bg2);
+  border:1px dashed var(--rule)}
+.manifesto-head{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem;margin-bottom:.5rem}
+.manifesto-label{font-family:var(--type);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.manifesto-count{font-family:var(--type);font-size:.72rem;color:var(--ink3)}
+.manifesto-text{margin:0;color:var(--ink2);font-size:.92rem;line-height:1.55}
+.manifesto-controls{display:flex;justify-content:flex-end;gap:.4rem;margin-top:.6rem}
+.manifesto-btn{font:inherit;font-size:.85rem;line-height:1;background:none;color:var(--ink3);
+  border:1px solid var(--rule);border-radius:50%;width:1.5rem;height:1.5rem;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+.manifesto-btn:hover{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+
+/* ------------------------------------------------------------------------------------------
    Paper layout -- an opt-in mode (toggled by #layoutToggle, saved as "ar:layout") that pushes
    the newspaper references further: a centered masthead instead of a logo-left nav bar,
    dateline-style bylines, pull-quote blockquotes, small-caps section rules, and (on wide
