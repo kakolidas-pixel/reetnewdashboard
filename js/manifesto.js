@@ -59,12 +59,7 @@ function init() {
   const path = window.location.pathname;
 
   // Only show when the URL belongs to an article (e.g., /writing/my-article or /projects/my-project)
-  const isArticle = path.startsWith("/writing/") || path.startsWith("/projects/");
 
-  if (!isArticle) {
-    section.style.display = "none";
-    return;
-  }
 
   // Display section and insert a random statement
   section.style.display = "block";
@@ -74,11 +69,3 @@ function init() {
 }
 
 // Re-run check whenever SPA navigation changes the URL
-window.addEventListener("popstate", init);
-document.addEventListener("click", () => setTimeout(init, 50));
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
-} else {
-  init();
-}
