@@ -56,31 +56,20 @@ function init() {
   const idxEl = document.getElementById("mIndex");
   const totalEl = document.getElementById("mTotal");
   const root = document.getElementById("manifesto");
+
   if (!textEl || !root) return;
 
-  totalEl.textContent = String(statements.length).padStart(2, "0");
-  let i = Math.floor(Math.random() * statements.length);
-
-  function render() {
-    titleEl.textContent = statements[i].title;
-    textEl.textContent = statements[i].text;
-    idxEl.textContent = String(i + 1).padStart(2, "0");
+  if (totalEl) {
+    totalEl.textContent = String(statements.length).padStart(2, "0");
   }
-  function next() { i = (i + 1) % statements.length; render(); }
-  function prev() { i = (i - 1 + statements.length) % statements.length; render(); }
-  render();
 
-  document.getElementById("mNext").addEventListener("click", next);
-  document.getElementById("mPrev").addEventListener("click", prev);
+  // Pick a random index on load
+  const randomIndex = Math.floor(Math.random() * statements.length);
 
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!reduceMotion) {
-    let timer = setInterval(next, 9000);
-    root.addEventListener("mouseenter", () => clearInterval(timer));
-    root.addEventListener("mouseleave", () => { timer = setInterval(next, 9000); });
-    root.addEventListener("focusin", () => clearInterval(timer));
-    root.addEventListener("focusout", () => { timer = setInterval(next, 9000); });
-  }
+  // Render the selected statement
+  if (titleEl) titleEl.textContent = statements[randomIndex].title;
+  textEl.textContent = statements[randomIndex].text;
+  if (idxEl) idxEl.textContent = String(randomIndex + 1).padStart(2, "0");
 }
 
 if (document.readyState === "loading") {
