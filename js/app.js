@@ -648,6 +648,35 @@ function initLayoutToggle() {
   });
 }
 
+// Function in app.js that renders article views (e.g. /writing/[slug] or /projects/[slug])
+function renderArticlePage(articleData) {
+  const viewContainer = document.getElementById("view");
+
+  // Render article content + append manifesto block at the end
+  viewContainer.innerHTML = `
+    <article class="article-body">
+      <h1>${articleData.title}</h1>
+      <div class="article-content">${articleData.content}</div>
+    </article>
+
+    <section class="manifesto-wrapper">
+      <h3 class="manifesto-heading">Principles & Perspectives</h3>
+      <div class="manifesto" id="manifesto">
+        <div class="manifesto-box">
+          <div class="manifesto-head">
+            <h2 class="manifesto-title" id="mTitle"></h2>
+          </div>
+          <p class="manifesto-text" id="mText"></p>
+        </div>
+      </div>
+    </section>
+  `;
+
+  // Initialize the random selection logic after rendering DOM
+  if (typeof initManifesto === "function") {
+    initManifesto();
+  }
+}
 function chrome() {
   $("#wordmark").textContent = S.siteTitle;
   $("#foot").innerHTML = `<p>${esc(S.footerNote)}</p><p>&copy; ${new Date().getFullYear()} ${esc(S.siteTitle)}${data.demoMode ? ". Demo content." : ""} &middot; Design inspired by <a href="https://gwern.net">gwern.net</a> &middot; <a href="${BASE}/privacy">Privacy</a> &middot; <a href="${BASE}/copyright">Copyright</a></p>`;
