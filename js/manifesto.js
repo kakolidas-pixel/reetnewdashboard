@@ -1,7 +1,4 @@
-// A permanent, titled broadside against ad tech, tracking and enshittification, after the page
-// content on every route. Not dismissable. Every entry is a general indictment of the industry,
-// except the AI one, which is a direct claim about this site (it really does carry a TDM
-// opt-out -- see the tdm-reservation meta tag in index.html).
+
 const statements = [
   {
     title: "On ad brokers",
