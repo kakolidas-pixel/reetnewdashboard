@@ -1,16 +1,16 @@
 
 const statements = [
   {
-    title: "On ad brokers",
+    title: "The Web Belongs to People",
     text: "The internet was conceived as a vibrant public square, not a cluster of walled gardens. We reject the systemic degradation of online spaces for short-term profit.",
   },
   {
-    title: "On surveillance",
-    text: "Surveillance dressed up as “personalization” is still surveillance. Every tracker is a hand in a pocket that was never offered.",
+    title: "Tools Over Traps",
+    text: "Software should serve as a tool to empower human intent, not a trap designed to harvest attention, lock in users, and extract value.",
   },
   {
-    title: "On your data",
-    text: "You were never the user. You were the product, and your data was just the receipt.",
+    title: "Data Portability",
+    text: "No user should be held hostage by platform lock-in. Your data, identity, social graph, and content belong to you, with the right to move seamlessly across services.",
   },
   {
     title: "On AI scraping",
@@ -37,8 +37,8 @@ const statements = [
     text: "A dark pattern is a company admitting, in interface form, that the honest version of the button would have lost.",
   },
   {
-    title: "On lock-in",
-    text: "Lock-in isn't a feature. It's a wall built one convenience at a time, until leaving costs more than staying ever should.",
+    title: "Interoperability Rules",
+    text: "Closed ecosystems thrive on artificial barriers. We demand open protocols that allow different platforms to communicate directly, restoring competition and personal choice.",
   },
   {
     title: "On bloatware",
