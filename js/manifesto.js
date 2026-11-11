@@ -33,10 +33,6 @@ const statements = [
     text: "The cloud was never a place. It's someone else's computer, billing you monthly to think where they can see it.",
   },
   {
-    title: "On dark patterns",
-    text: "A dark pattern is a company admitting, in interface form, that the honest version of the button would have lost.",
-  },
-  {
     title: "Interoperability Rules",
     text: "Closed ecosystems thrive on artificial barriers. We demand open protocols that allow different platforms to communicate directly, restoring competition and personal choice.",
   },
