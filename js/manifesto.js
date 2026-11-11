@@ -55,13 +55,16 @@ function init() {
   const textEl = document.getElementById("mText");
   const idxEl = document.getElementById("mIndex");
   const totalEl = document.getElementById("mTotal");
+  const prevBtn = document.getElementById("mPrev");
+  const nextBtn = document.getElementById("mNext");
   const root = document.getElementById("manifesto");
 
   if (!textEl || !root) return;
 
-  if (totalEl) {
-    totalEl.textContent = String(statements.length).padStart(2, "0");
-  }
+  // Hide the total and navigation buttons if they exist in the DOM
+  if (totalEl) totalEl.style.display = "none";
+  if (prevBtn) prevBtn.style.display = "none";
+  if (nextBtn) nextBtn.style.display = "none";
 
   // Pick a random index on load
   const randomIndex = Math.floor(Math.random() * statements.length);
