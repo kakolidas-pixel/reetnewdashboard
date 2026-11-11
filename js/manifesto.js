@@ -68,4 +68,18 @@ function init() {
   textEl.textContent = statements[randomIndex].text;
 }
 
+function initManifesto() {
+  const titleEl = document.getElementById("mTitle");
+  const textEl = document.getElementById("mText");
+  const root = document.getElementById("manifesto");
+
+  if (!textEl || !root) return;
+
+  const randomIndex = Math.floor(Math.random() * statements.length);
+
+  if (titleEl) titleEl.textContent = statements[randomIndex].title;
+  textEl.textContent = statements[randomIndex].text;
+}
+
+window.initManifesto = initManifesto;
 // Re-run check whenever SPA navigation changes the URL
