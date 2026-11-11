@@ -1,8 +1,4 @@
-/* Aryamann Reet. Charcoal ground, saffron-yellow highlight, Garamond text.
-   A light theme (toggled by #themeToggle, see js/app.js) swaps these for a white ground and
-   a Volkerrechtsblog-style blue, in the same places -- see the :root[data-theme="light"]
-   override block below. Nothing else in this file should hardcode a colour; it all goes
-   through these custom properties so both themes stay in sync automatically. */
+
 :root{
   --bg:#2b2b2c; --bg2:#343436; --rule:#4b4b4d;
   --ink:#e1dfd8; --ink2:#aaa9a3; --ink3:#80807b;
