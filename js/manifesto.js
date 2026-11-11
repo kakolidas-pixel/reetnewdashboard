@@ -2,7 +2,7 @@
 const statements = [
   {
     title: "On ad brokers",
-    text: "Ad brokers did not invent an industry. They invented a tax on being looked at, and convinced everyone it was progress.",
+    text: "The internet was conceived as a vibrant public square, not a cluster of walled gardens. We reject the systemic degradation of online spaces for short-term profit.",
   },
   {
     title: "On surveillance",
