@@ -1,4 +1,3 @@
-
 const statements = [
   {
     title: "The Web Belongs to People",
@@ -51,29 +50,32 @@ const statements = [
 ];
 
 function init() {
+  const section = document.getElementById("manifestoSection");
   const titleEl = document.getElementById("mTitle");
   const textEl = document.getElementById("mText");
-  const idxEl = document.getElementById("mIndex");
-  const totalEl = document.getElementById("mTotal");
-  const prevBtn = document.getElementById("mPrev");
-  const nextBtn = document.getElementById("mNext");
-  const root = document.getElementById("manifesto");
 
-  if (!textEl || !root) return;
+  if (!section || !textEl) return;
 
-  // Hide the total and navigation buttons if they exist in the DOM
-  if (totalEl) totalEl.style.display = "none";
-  if (prevBtn) prevBtn.style.display = "none";
-  if (nextBtn) nextBtn.style.display = "none";
+  const path = window.location.pathname;
 
-  // Pick a random index on load
+  // Only show when the URL belongs to an article (e.g., /writing/my-article or /projects/my-project)
+  const isArticle = path.startsWith("/writing/") || path.startsWith("/projects/");
+
+  if (!isArticle) {
+    section.style.display = "none";
+    return;
+  }
+
+  // Display section and insert a random statement
+  section.style.display = "block";
   const randomIndex = Math.floor(Math.random() * statements.length);
-
-  // Render the selected statement
   if (titleEl) titleEl.textContent = statements[randomIndex].title;
   textEl.textContent = statements[randomIndex].text;
-  if (idxEl) idxEl.textContent = String(randomIndex + 1).padStart(2, "0");
 }
+
+// Re-run check whenever SPA navigation changes the URL
+window.addEventListener("popstate", init);
+document.addEventListener("click", () => setTimeout(init, 50));
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
