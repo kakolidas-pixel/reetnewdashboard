@@ -1,8 +1,4 @@
-// Replaces the static /sitemap.xml with one built from what's actually published, so new
-// posts and projects show up without anyone having to hand-edit a file. Cloudflare Pages
-// runs a matching Function in preference to a same-path static file, so the static
-// sitemap.xml at the repo root becomes a safety net: if anything here throws, we fall back
-// to serving it unchanged (never a 500).
+
 import { listPublished } from "./_lib/firestore.js";
 
 const SITE = "https://aryamannreet.in";
