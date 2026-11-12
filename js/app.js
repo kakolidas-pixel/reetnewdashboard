@@ -689,7 +689,7 @@ function chrome() {
   // The nav and wordmark are static markup in index.html, written as root-relative links
   // ("/projects"); they only need the BASE prefix once, not on every render like `view` does.
   document.querySelectorAll('header.top a[href^="/"]').forEach(a => a.setAttribute("href", BASE + a.getAttribute("href")));
-  view.innerHTML = `<p class="empty" style="margin-top:3rem">Loading…</p>`;
+view.innerHTML = `<p class="empty" data-nosnippet style="margin-top:3rem">Loading…</p>`;
   try { S = await data.settings(); } catch (err) { console.error(err); S = { siteTitle: "Aryamann Reet", footerNote: "" }; }
   chrome();
   renderPage();
