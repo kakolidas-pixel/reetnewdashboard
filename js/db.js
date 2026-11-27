@@ -6,6 +6,7 @@
 import { firebaseConfig, isConfigured } from "./firebase-config.js";
 import { demo } from "./demo-data.js";
 import { previewId } from "./prevkey.js";
+import { DEFAULTS, sortProjects, sortPosts } from "./site-data.js";
 
 const BASE = "https://www.gstatic.com/firebasejs/10.12.2/";
 export const demoMode = !isConfigured;
@@ -50,20 +51,13 @@ async function fetchCol(name, onlyPublished) {
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-const DEFAULTS = {
-  siteTitle: "Aryamann Reet", tagline: "", intro: "", about: "", portrait: "",
-  school: "Legacy School, Bangalore", showSchool: false, email: "", links: [],
-  footerNote: "Independent student work. Nothing here is legal advice.", featuredProject: ""
-};
-
-const byOrder = (a, b) => (a.order ?? 99) - (b.order ?? 99) || (b.startDate || "").localeCompare(a.startDate || "");
 const list = (name, published) => isConfigured ? cached(name, () => fetchCol(name, published)) : Promise.resolve(structuredClone(demo[name] || []));
 
 export const settings = () => isConfigured
   ? cached("settings", async () => { const { F, db } = await boot(); const d = await F.getDoc(F.doc(db, "settings", "site")); return d.exists() ? d.data() : {}; }).then(s => ({ ...DEFAULTS, ...s }))
   : Promise.resolve({ ...DEFAULTS, ...demo.settings[0] });
-export const projects = async () => [...await list("projects", true)].sort(byOrder);
-export const posts = async () => [...await list("posts", true)].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+export const projects = async () => sortProjects(await list("projects", true));
+export const posts = async () => sortPosts(await list("posts", true));
 export const timeline = () => list("timeline", false);
 export const books = () => list("books", true);
 

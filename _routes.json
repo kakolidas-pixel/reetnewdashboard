@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": ["/css/*", "/js/*", "/admin/*", "/firebase-rules/*", "/robots.txt", "/favicon.svg", "/favicon-96x96.png", "/apple-touch-icon.png"]
+}
